@@ -5,10 +5,43 @@ provider:
   name: aws
   runtime: nodejs18.x
 
+plugins:
+  - serverless-offline
+
 functions:
-  api:
-    handler: index.handler
+  createUser:
+    handler: controller/handlers.createNewUser
     events:
       - httpApi:
-          path: /
+          path: /users/create
+          method: post
+  getAll:
+    handler: controller/handlers.getAllUsers
+    events:
+      - httpApi:
+          path: /users
           method: get
+  getAllCompany:
+    handler: controller/handlers.getCompany
+    events:
+      - httpApi:
+          path: /users/company/{cmp_id}
+          method: get
+  getUser:
+    handler: controller/handlers.getSingleUser
+    events:
+      - httpApi:
+          path:  /users/find/{email}
+          method: get
+  updateUser:
+    handler: controller/handlers.updateUserData
+    events:
+      - httpApi:
+          path:  /users/update/{user_id}
+          method: patch
+  deleteUser:
+    handler: controller/handlers.deleteUser
+    events:
+      - httpApi:
+          path:  /users/delete/{user_id}
+          method: delete
