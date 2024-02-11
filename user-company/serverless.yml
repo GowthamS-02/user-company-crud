@@ -25,7 +25,7 @@ functions:
     handler: controller/handlers.getCompany
     events:
       - httpApi:
-          path: /users/company/{cmp_id}
+          path: /users/company
           method: get
   getUser:
     handler: controller/handlers.getSingleUser

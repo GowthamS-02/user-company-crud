@@ -57,20 +57,56 @@ module.exports.getCompany = async (event) => {
     const models = await database();
     const { User } = models;
     try {
-        const { cmp_id } = event.pathParameters;
+        // let { page, cmp_id, added_at } = event.queryStringParameters;
+        let body = event.queryStringParameters;
+        let pageAsNum = Number.parseInt(body.page);
+        let cmpIdAsNum = Number.parseInt(body.cmp_id);
+        let dateGiv = body.added_at;
+        console.log(pageAsNum);
+        console.log(cmpIdAsNum);
+        console.log(dateGiv);
+        let page = 1;
+        if(!Number.isNaN(pageAsNum) && pageAsNum > 0){
+            page = pageAsNum
+        }
+        let cmp_id = 143;
+        if(!Number.isNaN(cmpIdAsNum) && cmpIdAsNum > 0){
+            cmp_id = cmpIdAsNum;
+        }
+
+        let added_at = "2024-02-09";
+        if(!isNaN(dateGiv)){
+            added_at = dateGiv
+        }
+
+
         const CmpId = await User.findOne({ where: { cmp_id, is_deleted: 0 } });
         let msg = message.FOUND_DATA;
         if (!CmpId) {
             msg = message.REQ_NOT_FOUND;
         }
+
         let userObj = await User.findAndCountAll({
             attributes: [['user_id', 'ID'], ['username', 'Username'], ['email', 'User-mail']],
-            where: { cmp_id, is_deleted: 0 },
+            where: { cmp_id, added_at, is_deleted: 0 },
+            order: [["added_ts", "ASC"]],
             limit: 4,
-            offset: 0,
+            offset: 4 * (page-1),
         });
+        
+        // return response(201, userObj, msg);
 
-        return response(201, userObj, msg);
+
+
+        let noOfPage = Math.ceil(userObj.count / 4);
+        let output = {
+            data: userObj,
+           No_of_pages: noOfPage
+           };
+        return {
+        statusCode: 201,
+        body: JSON.stringify(output)
+    };
     }
     catch (error) {
         console.log(error);
