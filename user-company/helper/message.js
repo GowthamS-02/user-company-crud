@@ -7,7 +7,8 @@ const message = {
     DATA_UPDATE: "Data Updated",
     DATA_DELETE: "Data Deleted",
     CMP_NOT_FOUND: "Requested Company Not Found",
-    DATE_NOT_FOUND: "No Data in the given date"
+    DATE_NOT_FOUND: "No Data in the given date",
+    CMP_CREATE: "New Company created"
 }
 
 module.exports = message;

@@ -1,7 +1,7 @@
 const moment = require('moment');
-let m = moment();
+let mome = moment();
 
-module.exports.CompanyStu = (Sequelize, sequelize) => {
+module.exports.CompanyModule = (Sequelize, sequelize) => {
     return sequelize.define('Company', {
         cmp_id: {
             type: Sequelize.INTEGER,
@@ -15,22 +15,22 @@ module.exports.CompanyStu = (Sequelize, sequelize) => {
         founded_date: Sequelize.DATEONLY,
         website:Sequelize.STRING,
         cmp_address: Sequelize.STRING,
-        cmp_phone: Sequelize.INTEGER,
+        cmp_phone: Sequelize.STRING,
         added_at: {
             type: Sequelize.DATEONLY,
-            defaultValue: m.format("L")
+            // defaultValue: mome.format("L")
         },
         added_ts: {
             type: Sequelize.DATE,
-            defaultValue: m.toISOString()
+            // defaultValue: mome.toISOString()
         },
         updated_dt: {
             type: Sequelize.DATEONLY,
-            defaultValue: m.format("L")
+            // defaultValue: mome.format("L")
         },
         updated_ts: {
             type: Sequelize.DATE,
-            defaultValue: m.toISOString()
+            // defaultValue: mome.toISOString()
         },
         is_active: {
             type: Sequelize.BOOLEAN,

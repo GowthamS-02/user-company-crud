@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 require('dotenv').config();
 const { UserModel } = require('./controller/user.js');
-const { CompanyStu } = require('./controller/company.js');
+const { CompanyModule } = require('./controller/company.js');
 
 const username = process.env.DB_USERNAME;
 const password = process.env.DB_PASSWORD;
@@ -11,14 +11,13 @@ const writeData = new Sequelize(db_name, username, password, {
     dialect: 'mysql'
 });
 
-// const User = UserModel(Sequelize, writeData);
-const Company = CompanyStu(Sequelize, writeData);
-const models = { Company };
+const User = UserModel(Sequelize, writeData);
+const Company = CompanyModule(Sequelize, writeData);
+const models = { User,  Company };
 
 const databaseWrite = async () => {
     try {
         await writeData.authenticate();
-        await Company.sync();
         console.log("Write data Connection Established!");
         // await User.sync();
         // await Company.sync();

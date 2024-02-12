@@ -11,8 +11,10 @@ let m = moment();
 module.exports.createNewUser = async (event) => {
     try {
         if ((event.body) === null) {
-            return response(400, " ", message.ENTER_DATA);
+            console.log("null");
+            return response(400, "", message.ENTER_DATA);
         }
+        console.log(event.body);
         const inputData = JSON.parse(event.body);
 
         console.log(inputData);

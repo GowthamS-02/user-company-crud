@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 require('dotenv').config();
 const { UserModel } = require('./controller/user.js');
-const { CompanyStu } = require('./controller/company.js');
+const { CompanyModule } = require('./controller/company.js');
 
 const username = process.env.DB_USERNAME;
 const password = process.env.DB_PASSWORD;
@@ -12,7 +12,7 @@ const readData = new Sequelize(db_name, username, password, {
 });
 
 const User = UserModel(Sequelize, readData);
-const Company = CompanyStu(Sequelize, readData);
+const Company = CompanyModule(Sequelize, readData);
 const models = { User, Company };
 
 const databaseRead = async () => {
