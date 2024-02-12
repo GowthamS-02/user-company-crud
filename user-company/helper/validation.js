@@ -1,6 +1,4 @@
 const Joi = require('joi');
-const moment = require('moment');
-let m = moment();
 
 const validateUser = (user) => {
     const joischema = Joi.object({
@@ -18,4 +16,19 @@ const validateUser = (user) => {
     return joischema.validate(user);
 }
 
-module.exports = validateUser;
+
+const validateCompay = (company) => {
+    const cmpschema = Joi.object({
+        cmp_id: Joi.number().integer(),
+        name: Joi.string().min(4).max(15).required(),
+        industry:  Joi.string().required(),
+        founded_date: Joi.date(),
+        website: Joi.string().required(),
+        cmp_address: Joi.string().required(),
+        cmp_phone: Joi.number().integer()
+    }).options({ abortEarly: false });
+    return cmpschema.validate(company);
+}
+
+
+module.exports = { validateUser, validateCompay };

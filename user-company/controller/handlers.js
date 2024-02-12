@@ -1,7 +1,9 @@
-const database = require('../database.js');
+const databaseWrite = require('../writeDatabase.js');
+const databaseRead = require('../readDatabase.js');
 const { response } = require('../helper/response.js');
-const validateUser = require('../helper/validation.js');
+const {validateUser} = require('../helper/validation.js');
 const message = require('../helper/message.js');
+const { noOfPage } = require('../helper/noOfPage.js');
 const moment = require('moment');
 let m = moment();
 
@@ -14,15 +16,27 @@ module.exports.createNewUser = async (event) => {
         const inputData = JSON.parse(event.body);
 
         console.log(inputData);
+
+        const models = await databaseWrite();
+        const { User } = models;
+        const userName = inputData.username;
+        const existUser = await User.findOne({ where: { username: userName, is_deleted: 0 } });
+        let msg = "This username is already exist. Please enter another another username";
+        if (existUser) {
+            return response(201, "", msg)
+        }
+        const userEmail = inputData.email;
+        const existEmail = await User.findOne({ where: { email: userEmail, is_deleted: 0 } });
+        if (existEmail) {
+            let msg = "This user email is already exist. Please enter another email address";
+            return response(201, "", msg)
+        }
         //validation
         const { error, value } = await validateUser(inputData);
-
         if (error) {
             console.log(error.message);
         }
         console.log(value);
-        const models = await database();
-        const { User } = models;
 
         let newUser = await User.create(value);
         return response(201, "", message.USER_CREATE);
@@ -35,10 +49,10 @@ module.exports.createNewUser = async (event) => {
 
 
 module.exports.getAllUsers = async (event) => {
-    const models = await database();
-    const { User } = models;
+    const models = await databaseRead();
+    const { User, Company } = models;
     try {
-        let userObj = await User.findAll({ attributes: [['username', 'Username'], ['email', 'userMail']], where: { is_deleted: 0 }, order: [['username', 'ASC']] });
+        let userObj = await User.findAll({ attributes: [['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'userMail']], where: { is_deleted: 0 }, order: [['username', 'ASC']] });
         let msg = message.FOUND_DATA;
         if ((userObj.length) === 0) {
             msg = message.NO_DATA;
@@ -52,61 +66,130 @@ module.exports.getAllUsers = async (event) => {
 };
 
 
+// module.exports.getAllUsers = async (event) => {
+//     const models = await database();
+//     const { User } = models;
+//     try {
+//         let userObj = await User.findAll({ attributes: [['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'userMail']], where: { is_deleted: 0 }, order: [['username', 'ASC']] });
+//         let msg = message.FOUND_DATA;
+//         if ((userObj.length) === 0) {
+//             msg = message.NO_DATA;
+//         }
+//         return response(201, userObj, msg);
+//     }
+//     catch (error) {
+//         console.log(error);
+//         throw error;
+//     }
+// };
+
 
 module.exports.getCompany = async (event) => {
-    const models = await database();
-    const { User } = models;
+    const models = await databaseRead();
+    const { User, Company } = models;
     try {
         // let { page, cmp_id, added_at } = event.queryStringParameters;
         let body = event.queryStringParameters;
-        let pageAsNum = Number.parseInt(body.page);
-        let cmpIdAsNum = Number.parseInt(body.cmp_id);
+        console.log(body);
+        let msg;
+        //If no query string
+        if (body === null) {
+            let userObj = await User.findAndCountAll({
+                attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']],
+                where: { is_deleted: 0 },
+                order: [["added_ts", "ASC"]],
+                // limit: 4,
+                // offset: 4 * (page - 1),
+            });
+            return response(201, userObj, msg);
+        }
+
+        let pageNum = Number.parseInt(body.page);
+        let cmpIdNum = Number.parseInt(body.cmp_id);
         let dateGiv = body.added_at;
-        console.log(pageAsNum);
-        console.log(cmpIdAsNum);
+        console.log(pageNum);
+        console.log(cmpIdNum);
         console.log(dateGiv);
         let page = 1;
-        if(!Number.isNaN(pageAsNum) && pageAsNum > 0){
-            page = pageAsNum
-        }
-        let cmp_id = 143;
-        if(!Number.isNaN(cmpIdAsNum) && cmpIdAsNum > 0){
-            cmp_id = cmpIdAsNum;
+        if (!Number.isNaN(pageNum) && pageNum > 0) {
+            page = pageNum
         }
 
-        let added_at = "2024-02-09";
-        if(!isNaN(dateGiv)){
-            added_at = dateGiv
+        if (cmpIdNum) {
+            const CmpId = await User.findOne({ where: { cmp_id: cmpIdNum, is_deleted: 0 } });
+            if (!CmpId) {
+                msg = message.CMP_NOT_FOUND;
+                return response(201, "", msg);
+            }
         }
-
-
-        const CmpId = await User.findOne({ where: { cmp_id, is_deleted: 0 } });
-        let msg = message.FOUND_DATA;
-        if (!CmpId) {
-            msg = message.REQ_NOT_FOUND;
+        if (dateGiv) {
+            const fetchDate = await User.findOne({ where: { added_at: dateGiv, is_deleted: 0 } })
+            if (!fetchDate) {
+                msg = message.DATE_NOT_FOUND;
+                return response(201, "", msg);
+            }
         }
-
-        let userObj = await User.findAndCountAll({
-            attributes: [['user_id', 'ID'], ['username', 'Username'], ['email', 'User-mail']],
-            where: { cmp_id, added_at, is_deleted: 0 },
-            order: [["added_ts", "ASC"]],
-            limit: 4,
-            offset: 4 * (page-1),
-        });
-        
-        // return response(201, userObj, msg);
-
-
-
-        let noOfPage = Math.ceil(userObj.count / 4);
         let output = {
-            data: userObj,
-           No_of_pages: noOfPage
-           };
+            data: "",
+            No_of_pages: ""
+        };
+
+        //if both date and cmp ID given
+        if (cmpIdNum && dateGiv) {
+            let userObj = await User.findAndCountAll({
+                attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']],
+                where: { cmp_id: cmpIdNum, added_at: dateGiv, is_deleted: 0 },
+                order: [["added_ts", "ASC"]],
+                limit: 4,
+                offset: 4 * (page - 1),
+            });
+
+            // let noOfPage = Math.ceil(userObj.count / 4);
+            output = {
+                data: userObj,
+                No_of_pages: noOfPage(userObj)
+            };
+            console.log("Both cmp and date");
+        }
+
+        //if only compay ID given
+        else if (cmpIdNum) {
+            let userObj = await User.findAndCountAll({
+                attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']],
+                where: { cmp_id: cmpIdNum, is_deleted: 0 },
+                order: [["added_ts", "ASC"]],
+                limit: 4,
+                offset: 4 * (page - 1),
+            });
+
+            output = {
+                data: userObj,
+                No_of_pages: noOfPage(userObj)
+            };
+            console.log("only cmp");
+        }
+
+        //if only date given
+        else if (dateGiv) {
+            let userObj = await User.findAndCountAll({
+                attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']],
+                where: { added_at: dateGiv, is_deleted: 0 },
+                order: [["added_ts", "ASC"]],
+                limit: 4,
+                offset: 4 * (page - 1),
+            });
+
+            output = {
+                data: userObj,
+                No_of_pages: noOfPage(userObj)
+            };
+            console.log("only date");
+        }
+
         return {
-        statusCode: 201,
-        body: JSON.stringify(output)
-    };
+            statusCode: 201,
+            body: JSON.stringify(output)
+        };
     }
     catch (error) {
         console.log(error);
@@ -115,14 +198,12 @@ module.exports.getCompany = async (event) => {
 };
 
 
-
-
 module.exports.getSingleUser = async (event) => {
-    const models = await database();
-    const { User } = models;
+    const models = await databaseRead();
+    const { User, Company } = models;
     try {
         const { email } = event.pathParameters;
-        let userObj = await User.findOne({ attributes: [['user_id', 'ID'], ['username', 'Username'], ['email', 'User-mail']], where: { email, is_deleted: 0 } });//
+        let userObj = await User.findOne({ attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']], where: { email, is_deleted: 0 } });//
         let msg = message.FOUND_DATA;
         if (!userObj) {
             msg = message.REQ_NOT_FOUND;
@@ -137,9 +218,10 @@ module.exports.getSingleUser = async (event) => {
 
 
 module.exports.updateUserData = async (event) => {
-    const models = await database();
-    const { User } = models;
+    
     try {
+        const models1 = await databaseRead();
+        var { User, Company } = models1;
         const { user_id } = event.pathParameters;
         const UserId = await User.findOne({ where: { user_id, is_deleted: 0 } });
         let msg = message.DATA_UPDATE;
@@ -149,6 +231,8 @@ module.exports.updateUserData = async (event) => {
 
         const userObj = JSON.parse(event.body);
         console.log(userObj);
+        const models2 = await databaseWrite();
+        var { User, Company } = models2;
         let updateUser2 = await User.update(userObj, { where: { user_id } });
         let updateUser = await User.update({ updated_dt: m.format("L"), updated_ts: m.toISOString() }, { where: { user_id } });
 
@@ -161,18 +245,19 @@ module.exports.updateUserData = async (event) => {
 };
 
 
-
 module.exports.deleteUser = async (event) => {
-    const models = await database();
-    const { User } = models;
-    try {
+
+    try {       
+         const models1 = await databaseRead();
+        var { User, Company } = models1;
         const { user_id } = event.pathParameters;
         const UserId = await User.findOne({ where: { user_id, is_deleted: 0 } });
         let msg = message.DATA_DELETE;
         if (!UserId) {
             msg = message.REQ_NOT_FOUND;
         }
-
+        const models2 = await databaseWrite();
+        var { User, Company } = models2;
         let userObj = await User.update({ is_deleted: 1 }, { where: { user_id } });
         return response(201, "", msg);
     }

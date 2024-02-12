@@ -1,6 +1,6 @@
 module.exports.response = (code, data, msg) => {
     let result = msg;
-    if(data){
+    if (data) {
         result = JSON.stringify(data);
     }
     return {

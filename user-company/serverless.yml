@@ -45,3 +45,9 @@ functions:
       - httpApi:
           path:  /users/delete/{user_id}
           method: delete
+  createCompany:
+    handler: controller/cmphandlers.createNewCompany
+    events:
+      - httpApi:
+          path: /company/create
+          method: post

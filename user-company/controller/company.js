@@ -1,24 +1,21 @@
 const moment = require('moment');
 let m = moment();
 
-module.exports.UserModel = (Sequelize, sequelize) => {
-    return sequelize.define('User', {
-        user_id: {
+module.exports.CompanyStu = (Sequelize, sequelize) => {
+    return sequelize.define('Company', {
+        cmp_id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
-            autoIncrement: true
         },
-        username: Sequelize.STRING,
-        cmp_id: Sequelize.INTEGER,
-        email: {
+        name: {
             type: Sequelize.STRING,
             unique: true
         },
-        password: Sequelize.STRING,
-        first_name: Sequelize.STRING,
-        last_name: Sequelize.STRING,
-        gender: Sequelize.STRING,
-        birth_date: Sequelize.DATEONLY,
+        industry: Sequelize.STRING,
+        founded_date: Sequelize.DATEONLY,
+        website:Sequelize.STRING,
+        cmp_address: Sequelize.STRING,
+        cmp_phone: Sequelize.INTEGER,
         added_at: {
             type: Sequelize.DATEONLY,
             defaultValue: m.format("L")
