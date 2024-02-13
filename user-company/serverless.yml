@@ -15,23 +15,23 @@ functions:
       - httpApi:
           path: /users/create
           method: post
-  getAll:
+  getAllUser:
     handler: controller/handlers.getAllUsers
     events:
       - httpApi:
-          path: /users
+          path: /users/all
           method: get
-  getAllCompany:
-    handler: controller/handlers.getCompany
+  getPagination:
+    handler: controller/handlers.getFilter
     events:
       - httpApi:
-          path: /users/company
+          path: /users/filter
           method: get
   getUser:
     handler: controller/handlers.getSingleUser
     events:
       - httpApi:
-          path:  /users/find/{email}
+          path:  /users/find/{user_id}
           method: get
   updateUser:
     handler: controller/handlers.updateUserData
@@ -51,3 +51,39 @@ functions:
       - httpApi:
           path: /company/create
           method: post
+  getAllCompany:
+    handler: controller/cmphandlers.getAllCompany
+    events:
+      - httpApi:
+          path: /company/all
+          method: get
+  getCompany:
+    handler: controller/cmphandlers.getSingleCompany
+    events:
+      - httpApi:
+          path:  /company/find/{cmp_id}
+          method: get
+  updateCompany:
+    handler: controller/cmphandlers.updateCmpData
+    events:
+      - httpApi:
+          path:  /company/update/{cmp_id}
+          method: patch
+  deleteCompany:
+    handler: controller/cmphandlers.deleteCompany
+    events:
+      - httpApi:
+          path:  /company/delete/{cmp_id}
+          method: delete
+  usersInCompany:
+    handler: controller/cmphandlers.usersInCompany
+    events:
+      - httpApi:
+          path:  /users_in_company/{cmp_id}
+          method: get
+  companyOfUser:
+    handler: controller/cmphandlers.companyOfUser
+    events:
+      - httpApi:
+          path:  /company_of_user/{user_id}
+          method: get

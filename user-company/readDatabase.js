@@ -18,12 +18,11 @@ const models = { User, Company };
 const databaseRead = async () => {
     try {
         await readData.authenticate();
-        console.log("Read data Connection Established!");
-        // await User.sync();
+        console.log("Read database Connection Established!");
         return models;
     }
     catch (err) {
-        console.log("Error connecting to database:", err);
+        console.log("Error connecting to read database:", err);
     };
 }
 module.exports = databaseRead;

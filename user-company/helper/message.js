@@ -1,5 +1,5 @@
 const message = {
-    ENTER_DATA: "Enter User data",
+    ENTER_DATA: "Enter data",
     USER_CREATE: "New user Created",
     NO_DATA: "Data is not found",
     FOUND_DATA: "Data Found",

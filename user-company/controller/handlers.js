@@ -11,34 +11,39 @@ let m = moment();
 module.exports.createNewUser = async (event) => {
     try {
         if ((event.body) === null) {
-            console.log("null");
             return response(400, "", message.ENTER_DATA);
         }
-        console.log(event.body);
         const inputData = JSON.parse(event.body);
 
-        console.log(inputData);
-
         const models = await databaseWrite();
-        const { User } = models;
+        const { User, Company } = models;
+
         const userName = inputData.username;
         const existUser = await User.findOne({ where: { username: userName, is_deleted: 0 } });
         let msg = "This username is already exist. Please enter another another username";
         if (existUser) {
             return response(201, "", msg)
         }
+
         const userEmail = inputData.email;
         const existEmail = await User.findOne({ where: { email: userEmail, is_deleted: 0 } });
         if (existEmail) {
             let msg = "This user email is already exist. Please enter another email address";
             return response(201, "", msg)
         }
+
+        const cmpId = inputData.cmp_id;
+        const existCmpId = await Company.findOne({ where: {cmp_id: cmpId, is_deleted: 0}});
+        if (!existCmpId) {
+            let msg = "There is no company available as given";
+            return response(201, "", msg)
+        }
         //validation
         const { error, value } = await validateUser(inputData);
         if (error) {
             console.log(error.message);
+            return error.message;
         }
-        console.log(value);
 
         let newUser = await User.create(value);
         return response(201, "", message.USER_CREATE);
@@ -68,25 +73,7 @@ module.exports.getAllUsers = async (event) => {
 };
 
 
-// module.exports.getAllUsers = async (event) => {
-//     const models = await database();
-//     const { User } = models;
-//     try {
-//         let userObj = await User.findAll({ attributes: [['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'userMail']], where: { is_deleted: 0 }, order: [['username', 'ASC']] });
-//         let msg = message.FOUND_DATA;
-//         if ((userObj.length) === 0) {
-//             msg = message.NO_DATA;
-//         }
-//         return response(201, userObj, msg);
-//     }
-//     catch (error) {
-//         console.log(error);
-//         throw error;
-//     }
-// };
-
-
-module.exports.getCompany = async (event) => {
+module.exports.getFilter = async (event) => {
     const models = await databaseRead();
     const { User, Company } = models;
     try {
@@ -109,9 +96,7 @@ module.exports.getCompany = async (event) => {
         let pageNum = Number.parseInt(body.page);
         let cmpIdNum = Number.parseInt(body.cmp_id);
         let dateGiv = body.added_at;
-        console.log(pageNum);
-        console.log(cmpIdNum);
-        console.log(dateGiv);
+
         let page = 1;
         if (!Number.isNaN(pageNum) && pageNum > 0) {
             page = pageNum
@@ -124,6 +109,7 @@ module.exports.getCompany = async (event) => {
                 return response(201, "", msg);
             }
         }
+
         if (dateGiv) {
             const fetchDate = await User.findOne({ where: { added_at: dateGiv, is_deleted: 0 } })
             if (!fetchDate) {
@@ -131,6 +117,7 @@ module.exports.getCompany = async (event) => {
                 return response(201, "", msg);
             }
         }
+
         let output = {
             data: "",
             No_of_pages: ""
@@ -204,8 +191,8 @@ module.exports.getSingleUser = async (event) => {
     const models = await databaseRead();
     const { User, Company } = models;
     try {
-        const { email } = event.pathParameters;
-        let userObj = await User.findOne({ attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']], where: { email, is_deleted: 0 } });//
+        const { user_id } = event.pathParameters;
+        let userObj = await User.findOne({ attributes: [['user_id', 'ID'], ['username', 'Username'], ['cmp_id', 'Company ID'], ['email', 'User-mail']], where: { user_id, is_deleted: 0 } });//
         let msg = message.FOUND_DATA;
         if (!userObj) {
             msg = message.REQ_NOT_FOUND;
@@ -220,7 +207,6 @@ module.exports.getSingleUser = async (event) => {
 
 
 module.exports.updateUserData = async (event) => {
-    
     try {
         const models1 = await databaseRead();
         var { User, Company } = models1;
@@ -232,7 +218,7 @@ module.exports.updateUserData = async (event) => {
         }
 
         const userObj = JSON.parse(event.body);
-        console.log(userObj);
+        // console.log(userObj);
         const models2 = await databaseWrite();
         var { User, Company } = models2;
         let updateUser2 = await User.update(userObj, { where: { user_id } });
@@ -248,7 +234,6 @@ module.exports.updateUserData = async (event) => {
 
 
 module.exports.deleteUser = async (event) => {
-
     try {       
          const models1 = await databaseRead();
         var { User, Company } = models1;
@@ -258,6 +243,7 @@ module.exports.deleteUser = async (event) => {
         if (!UserId) {
             msg = message.REQ_NOT_FOUND;
         }
+
         const models2 = await databaseWrite();
         var { User, Company } = models2;
         let userObj = await User.update({ is_deleted: 1 }, { where: { user_id } });

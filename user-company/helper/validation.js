@@ -3,7 +3,7 @@ const Joi = require('joi');
 module.exports.validateUser = (user) => {
     const joischema = Joi.object({
         user_id: Joi.number().integer(),
-        name: Joi.string().min(4).max(15).required(),
+        username: Joi.string().min(4).max(15).required(),
         cmp_id: Joi.number().integer(),
         email: Joi.string().email().required(),
         password: Joi.string().min(4).required(),
@@ -15,7 +15,6 @@ module.exports.validateUser = (user) => {
 
     return joischema.validate(user);
 }
-
 
 module.exports.validateCompay = (company) => {
     const cmpschema = Joi.object({
@@ -29,6 +28,3 @@ module.exports.validateCompay = (company) => {
     }).options({ abortEarly: false });
     return cmpschema.validate(company);
 }
-
-
-//  = { validateUser, validateCompay };

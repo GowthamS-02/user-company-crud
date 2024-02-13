@@ -18,13 +18,12 @@ const models = { User,  Company };
 const databaseWrite = async () => {
     try {
         await writeData.authenticate();
-        console.log("Write data Connection Established!");
+        console.log("Write datavase Connection Established!");
         // await User.sync();
-        // await Company.sync();
         return models;
     }
     catch (err) {
-        console.log("Error connecting to database:", err);
+        console.log("Error connecting to write database:", err);
     };
 }
 module.exports = databaseWrite;
