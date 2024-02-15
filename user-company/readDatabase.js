@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 require('dotenv').config();
-const { UserModel } = require('./controller/user.js');
-const { CompanyModule } = require('./controller/company.js');
+const { UserModel } = require('./models/user.js');
+const { CompanyModule } = require('./models/company.js');
 
 const username = process.env.DB_USERNAME;
 const password = process.env.DB_PASSWORD;

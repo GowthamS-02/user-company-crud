@@ -10,80 +10,80 @@ plugins:
 
 functions:
   createUser:
-    handler: controller/handlers.createNewUser
+    handler: controller/user.createUser
     events:
       - httpApi:
-          path: /users/create
+          path: user/create
           method: post
-  getAllUser:
-    handler: controller/handlers.getAllUsers
+  getAllUsers:
+    handler: controller/user.getAllUsers
     events:
       - httpApi:
-          path: /users/all
+          path: users
           method: get
-  getPagination:
-    handler: controller/handlers.getFilter
-    events:
-      - httpApi:
-          path: /users/filter
-          method: get
+  # getUserFilter:
+  #   handler: controller/user.getFilter
+  #   events:
+  #     - httpApi:
+  #         path: /users/filter
+  #         method: get
   getUser:
-    handler: controller/handlers.getSingleUser
+    handler: controller/user.getUser
     events:
       - httpApi:
-          path:  /users/find/{user_id}
+          path:  user/find/{user_id}
           method: get
   updateUser:
-    handler: controller/handlers.updateUserData
+    handler: controller/user.updateUser
     events:
       - httpApi:
-          path:  /users/update/{user_id}
+          path:  user/update/{user_id}
           method: patch
   deleteUser:
-    handler: controller/handlers.deleteUser
+    handler: controller/user.deleteUser
     events:
       - httpApi:
-          path:  /users/delete/{user_id}
+          path:  user/delete/{user_id}
           method: delete
   createCompany:
-    handler: controller/cmphandlers.createNewCompany
+    handler: controller/company.createCompany
     events:
       - httpApi:
-          path: /company/create
+          path: company/create
           method: post
   getAllCompany:
-    handler: controller/cmphandlers.getAllCompany
+    handler: controller/company.getAllCompany
     events:
       - httpApi:
-          path: /company/all
+          path: company
           method: get
   getCompany:
-    handler: controller/cmphandlers.getSingleCompany
+    handler: controller/company.getCompany
     events:
       - httpApi:
-          path:  /company/find/{cmp_id}
+          path:  company/find/{cmp_id}
           method: get
   updateCompany:
-    handler: controller/cmphandlers.updateCmpData
+    handler: controller/company.updateCompany
     events:
       - httpApi:
-          path:  /company/update/{cmp_id}
+          path:  company/update/{cmp_id}
           method: patch
   deleteCompany:
-    handler: controller/cmphandlers.deleteCompany
+    handler: controller/company.deleteCompany
     events:
       - httpApi:
-          path:  /company/delete/{cmp_id}
+          path:  company/delete/{cmp_id}
           method: delete
   usersInCompany:
-    handler: controller/cmphandlers.usersInCompany
+    handler: controller/company.usersInCompany
     events:
       - httpApi:
-          path:  /users_in_company/{cmp_id}
+          path:  users_in_company/{cmp_id}
           method: get
   companyOfUser:
-    handler: controller/cmphandlers.companyOfUser
+    handler: controller/company.companyOfUser
     events:
       - httpApi:
-          path:  /company_of_user/{user_id}
+          path:  company_of_user/{user_id}
           method: get
