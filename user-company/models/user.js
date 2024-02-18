@@ -1,39 +1,69 @@
-const currentTime = require('moment');
-let moment = currentTime.utc();
-
 module.exports.UserModel = (Sequelize, sequelize) => {
     return sequelize.define('User', {
         user_id: {
-            type: Sequelize.INTEGER(10),
+            type: Sequelize.INTEGER(50),
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            //allowNull: false
         },
         username: {
-            type: Sequelize.STRING(15),
+            type: Sequelize.STRING(50),
             allowNull: false
         },
-        cmp_id: Sequelize.INTEGER(10),
-        email: {
-            type: Sequelize.STRING(20),
-            allowNull: false,
-            unique: true
+        cmp_id: {
+            type: Sequelize.INTEGER(50),
+            allowNull: false
         },
-        password: Sequelize.STRING(20),
-        first_name: Sequelize.STRING(10),
-        last_name: Sequelize.STRING(10),
-        gender: Sequelize.STRING(10),
-        birth_date: Sequelize.DATEONLY,
-        added_at: Sequelize.DATEONLY,
-        added_ts:  Sequelize.DATE,
-        updated_dt:  Sequelize.DATEONLY,
-        updated_ts:  Sequelize.DATE,
+        email: {
+            type: Sequelize.STRING(50),
+            unique: true,
+            allowNull: false
+        },
+        password: {
+            type: Sequelize.STRING(50),
+            allowNull: false
+        },
+        first_name: {
+            type: Sequelize.STRING(25),
+            allowNull: false
+        },
+        last_name: {
+            type: Sequelize.STRING(25),
+            allowNull: false
+        },
+        gender: {
+            type: Sequelize.STRING(25),
+            allowNull: false
+        },
+        birth_date: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        added_at: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        added_ts: {
+            type: Sequelize.DATE,
+            allowNull: false
+        },
+        updated_dt: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        updated_ts: {
+            type: Sequelize.DATE,
+            allowNull: false
+        },
         is_active: {
             type: Sequelize.BOOLEAN,
-            defaultValue: 1
+            defaultValue: 1,
+            allowNull: false
         },
         is_deleted: {
             type: Sequelize.BOOLEAN,
-            defaultValue: 0
+            defaultValue: 0,
+            allowNull: false
         }
     },
         {

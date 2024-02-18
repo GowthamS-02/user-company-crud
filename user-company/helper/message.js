@@ -2,7 +2,7 @@ const message = {
     ENTER_DATA: "Enter data",
     USER_CREATE: "New user Created",
     NO_DATA: "Data is not found",
-    FOUND_DATA: "Data Found",
+    FOUND_DATA: "Requested data Found",
     REQ_NOT_FOUND: "Requested data not found",
     DATA_UPDATE: "Data Updated",
     DATA_DELETE: "Data Deleted",
@@ -13,7 +13,9 @@ const message = {
     EXIST_USER:  "This username is already exist.",
     EXIST_EMAIL:  "This email address already exist.",
     DEFAULT_CMP: "Company ID, founded date and email are default values.",
-    DEFAULT_USER: "User ID and email are default values."
+    DEFAULT_EMAIL: "Email is a default value.",
+    USER_NOT_FOUND: "Requested User Not Found",
+    NO_PAGE: "Page does't exist"
 }
 
 module.exports = message;

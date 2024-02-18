@@ -19,10 +19,13 @@ const databaseRead = async () => {
     try {
         await readData.authenticate();
         console.log("Read database Connection Established!");
+        // await User.sync( {alter: true});
+        Company.hasMany(User, { foreignKey: 'cmp_id' });
+        User.belongsTo(Company, { foreignKey: 'cmp_id' });
         return models;
     }
-    catch (err) {
-        console.log("Error connecting to read database:", err);
+    catch (error) {
+        console.log("Error connecting to read database:", error);
     };
 }
 module.exports = databaseRead;

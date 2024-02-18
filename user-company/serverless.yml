@@ -20,13 +20,7 @@ functions:
     events:
       - httpApi:
           path: users
-          method: get
-  # getUserFilter:
-  #   handler: controller/user.getFilter
-  #   events:
-  #     - httpApi:
-  #         path: /users/filter
-  #         method: get
+          method: post
   getUser:
     handler: controller/user.getUser
     events:
@@ -56,7 +50,7 @@ functions:
     events:
       - httpApi:
           path: company
-          method: get
+          method: post
   getCompany:
     handler: controller/company.getCompany
     events:
@@ -75,15 +69,15 @@ functions:
       - httpApi:
           path:  company/delete/{cmp_id}
           method: delete
-  usersInCompany:
-    handler: controller/company.usersInCompany
-    events:
-      - httpApi:
-          path:  users_in_company/{cmp_id}
-          method: get
-  companyOfUser:
-    handler: controller/company.companyOfUser
-    events:
-      - httpApi:
-          path:  company_of_user/{user_id}
-          method: get
+  # usersInCompany:
+  #   handler: controller/company.usersInCompany
+  #   events:
+  #     - httpApi:
+  #         path:  users_in_company/{cmp_id}
+  #         method: get
+  # companyOfUser:
+  #   handler: controller/company.companyOfUser
+  #   events:
+  #     - httpApi:
+  #         path:  company_of_user/{user_id}
+  #         method: get

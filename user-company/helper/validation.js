@@ -1,52 +1,81 @@
 const Joi = require('joi');
 const message = require('./message');
 
-module.exports.validateUser = (user) => {
-    const joischema = Joi.object({
-        username: Joi.string().min(4).max(15).required().message("Username must be a string of length between 4 to 15 characters."),
-        cmp_id: Joi.number().integer(),
-        email: Joi.string().email().required().message("Enter a valid email"),
-        password: Joi.string().min(4).required().message("Password must have a minimum length of 4 characters"),
-        first_name: Joi.string().min(4),
-        last_name: Joi.string().min(1),
-        gender: Joi.string().valid('male', 'female', 'transgeder', 'others').required().message("Gender should be one the following: male, female, transgender and others"),
-        birth_date: Joi.date()
-    }).options({ abortEarly: false });
+let content = {
+    name: Joi.string().min(4).max(50).required()
+        .messages({
+            'string.empty': 'Display name cannot be empty',
+            'string.min': 'Name should be minimum of 4 characters',
+            'string.max': 'Name should be maximum of 50 characters',
+        }),
+    cmp_id: Joi.number().integer(),
+    email: Joi.string().email().required()
+        .messages({ 'string.email': 'Enter a valid email' }),
+    password: Joi.string().min(4).required()
+        .messages({ 'string.min': 'Password must have a minimum length of 4 characters' }),
+    first_name: Joi.string().min(4),
+    last_name: Joi.string().min(1),
+    gender: Joi.string().valid('male', 'female', 'transgender', 'others').required()
+        .messages({ 'any.only': 'Gender should be one the following: male, female, transgender and others' }),
+    date: Joi.date(),
+    industry: Joi.string().required(),
+    website: Joi.string().required(),
+    cmp_address: Joi.string().required(),
+    cmp_phone: Joi.string()
+};
 
-    return joischema.validate(user);
+let optionalContent = {
+    name: Joi.string().min(4).max(50)
+        .messages({
+            'string.min': 'Name should be minimum of 4 characters',
+            'string.max': 'Name should be maximum of 50 characters'
+        }),
+    email: Joi.string().email().messages({ 'any.only': 'Enter a valid email' }),
+    password: Joi.string().min(4)
+        .messages({ 'any.only': 'Password must have a minimum length of 4 characters' }),
+    gender: Joi.string().valid('male', 'female', 'transgender', 'others')
+        .messages({ 'any.only': 'Gender should be one the following: male, female, transgender and others' }),
+    industry: Joi.string(),
+    website: Joi.string(),
+    cmp_address: Joi.string()
 }
 
-module.exports.validateCompay = (company) => {
-    const cmpschema = Joi.object({
-        name: Joi.string().min(4).max(30).required().message("Name must be a string of length between 4 to 30 characters."),
-        industry: Joi.string().required(),
-        founded_date: Joi.date(),
-        website: Joi.string().required(),
-        email: Joi.string().email().required().message("Enter a valid email"),
-        cmp_address: Joi.string().required(),
-        cmp_phone: Joi.string()
-    }).options({ abortEarly: false });
-    return cmpschema.validate(company);
-}
 
-module.exports.validateUpdate = (update) => {
-    const updateSchema = Joi.object({
-        user_id: Joi.number().integer(),
-        username: Joi.string().min(4).max(15).required().message("Username must be a string of length between 4 to 15 characters."),
-        cmp_id: Joi.number().integer(),
-        email: Joi.string().email().required().message("Enter a valid email"),
-        password: Joi.string().min(4).required().message("Password must have a minimum length of 4 characters"),
-        first_name: Joi.string().min(4),
-        last_name: Joi.string().min(1),
-        gender: Joi.string().valid('male', 'female', 'transgeder', 'others').required().message("Gender should be one the following: male, female, transgender and others"),
-        birth_date: Joi.date(),
-        name: Joi.string().min(4).max(30).required().message("Name must be a string of length between 4 to 30 characters."),
-        industry: Joi.string().required(),
-        founded_date: Joi.date(),
-        website: Joi.string().required(),
-        email: Joi.string().email().required().message("Enter a valid email"),
-        cmp_address: Joi.string().required(),
-        cmp_phone: Joi.string()
-    }).options({ abortEarly: false });
-    return updateSchema.validate(update);
-}
+module.exports.userSchema = Joi.object({
+    username: content.name,
+    cmp_id: content.cmp_id,
+    email: content.email,
+    password: content.password,
+    first_name: content.first_name,
+    last_name: content.last_name,
+    gender: content.gender,
+    birth_date: content.date
+});
+// return joischema.validate(user);
+
+module.exports.cmpSchema = Joi.object({
+    name: content.name,
+    industry: content.industry,
+    founded_date: content.date,
+    website: content.website,
+    email: content.email,
+    cmp_address: content.cmp_address,
+    cmp_phone: content.cmp_phone
+})
+
+module.exports.updateSchema = Joi.object({
+    username: optionalContent.name,
+    cmp_id: content.cmp_id,
+    email: optionalContent.email,
+    password: optionalContent.password,
+    first_name: content.first_name,
+    last_name: content.last_name,
+    gender: optionalContent.gender,
+    birth_date: content.date,
+    name: optionalContent.name,
+    industry: optionalContent.industry,
+    founded_date: content.date,
+    website: optionalContent.website,
+    cmp_address: optionalContent.cmp_address,
+    cmp_phone: content.cmp_phone
+})

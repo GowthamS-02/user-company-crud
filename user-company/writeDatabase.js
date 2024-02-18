@@ -18,11 +18,11 @@ const databaseWrite = async () => {
     try {
         await writeData.authenticate();
         console.log("Write datavase Connection Established!");
-        // await User.sync();
+        // await User.sync( {alter: true});
         return models;
     }
-    catch (err) {
-        console.log("Error connecting to write database:", err);
+    catch (error) {
+        console.log("Error connecting to write database:", error);
     };
 }
 module.exports = databaseWrite;

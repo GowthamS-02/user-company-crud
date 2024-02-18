@@ -1,35 +1,66 @@
 module.exports.CompanyModule = (Sequelize, sequelize) => {
     return sequelize.define('Company', {
         cmp_id: {
-            type: Sequelize.INTEGER(10),
+            type: Sequelize.INTEGER(50),
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            allowNull: false
         },
         name: {
-            type: Sequelize.STRING(30),
+            type: Sequelize.STRING(50),
             unique: true,
             allowNull: false
         },
-        industry: Sequelize.STRING(20),
-        founded_date: Sequelize.DATEONLY,
-        website:Sequelize.STRING(25),
-        email: {
-            type: Sequelize.STRING(20),
-            unique: true
+        industry: {
+            type: Sequelize.STRING(100),
+            allowNull: false
         },
-        cmp_address: Sequelize.STRING(50),
-        cmp_phone: Sequelize.STRING(15),
-        added_at:  Sequelize.DATEONLY,
-        added_ts:  Sequelize.DATE,
-        updated_dt:  Sequelize.DATEONLY,
-        updated_ts: Sequelize.DATE,
+        founded_date: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        website: {
+            type: Sequelize.STRING(250),
+            allowNull: false
+        },
+        email: {
+            type: Sequelize.STRING(50),
+            unique: true,
+            allowNull: false
+        },
+        cmp_address: {
+            type: Sequelize.STRING(250),
+            allowNull: false
+        },
+        cmp_phone: {
+            type: Sequelize.STRING(50),
+            allowNull: false
+        },
+        added_at: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        added_ts: {
+            type: Sequelize.DATE,
+            allowNull: false
+        },
+        updated_dt: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        updated_ts: {
+            type: Sequelize.DATE,
+            allowNull: false
+        },
         is_active: {
             type: Sequelize.BOOLEAN,
-            defaultValue: 1
+            defaultValue: 1,
+            allowNull: false
         },
         is_deleted: {
             type: Sequelize.BOOLEAN,
-            defaultValue: 0
+            defaultValue: 0,
+            allowNull: false
         }
     },
         {

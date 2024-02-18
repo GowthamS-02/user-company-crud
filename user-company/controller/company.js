@@ -1,48 +1,42 @@
 const databaseWrite = require('../writeDatabase.js');
 const databaseRead = require('../readDatabase.js');
 const { response } = require('../helper/response.js');
-const { validateCompay, validateUpdate } = require('../helper/validation.js');
+const { cmpSchema, updateSchema } = require('../helper/validation.js');
 const message = require('../helper/message.js');
-// const { noOfPage } = require('../helper/noOfPage.js');
-const currentTime = require('moment');
-let moment = currentTime.utc();
+const { noOfPage } = require('../helper/noOfPage.js');
+const { date } = require('../helper/moment.js');
 
 
 module.exports.createCompany = async (event) => {
     try {
         if ((event.body) === null) {
-            return response(400, " ", message.ENTER_DATA);
+            return response(400, [], message.ENTER_DATA);
         }
         const inputData = JSON.parse(event.body);
-
-        const { error, value } = await validateCompay(inputData);
+        const { error, value } = await cmpSchema.validate(inputData);
         if (error) {
             console.log(error.message);
             return error.message;
         }
-
         const readModels = await databaseRead();
-        var { Company } = readModels;
+        let Company  = readModels.Company;
         // await Company.sync( {alter: true});
-
-        const cmpMail = inputData.email;//
-        const existMail = await Company.findOne({ where: { email: cmpMail, is_deleted: 0 } });//emai;
-        let reply;
-        if (existMail) {
-            reply = message.EXIST_CMP;
-            return response(201, "", reply);
+        const cmpMail = inputData.email;
+        const existEmail = await Company.findOne({ where: { email: cmpMail, is_deleted: 0 } });//emai;
+        if (existEmail) {
+            let responseMessage = message.EXIST_CMP;
+            return response(200, [], responseMessage);
         }
-
         const writeModels = await databaseWrite();
-        var { Company } = writeModels;
+        Company  = writeModels.Company;
 
-        value.added_at = moment.toString();
-        value.added_ts = moment.toString();//utc
-        value.updated_dt = moment.toString();
-        value.updated_ts = moment.toString();
+        value.added_at = date();
+        value.added_ts = date();//utc
+        value.updated_dt = date();
+        value.updated_ts = date();
 
-        let newCmp = await Company.create(value);
-        return response(201, "", message.CMP_CREATE);
+        await Company.create(value);
+        return response(201, [], message.CMP_CREATE);
     }
     catch (error) {
         console.log(error);
@@ -52,15 +46,44 @@ module.exports.createCompany = async (event) => {
 
 
 module.exports.getAllCompany = async (event) => {
-    const models = await databaseRead();
-    const { Company } = models;
+    const readModels = await databaseRead();
+    let Company  = readModels.Company;
     try {
-        let userObj = await Company.findAll({ attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']], where: { is_deleted: 0 }, order: [['cmp_id', 'ASC']] });
-        let reply = message.FOUND_DATA;
-        if ((userObj.length) === 0) {
-            reply = message.NO_DATA;
+        let body = JSON.stringify(event.body)
+
+        let page = 1;
+        if (body !== null) {
+            if(body.page > 0){
+                page = pageNum
+            }
         }
-        return response(201, userObj, reply);
+        let cmpData = await Company.findAll({
+            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
+            where: { is_deleted: 0 },
+            order: [['cmp_id', 'ASC']],
+            limit: 4,
+            offset: 4 * (page - 1),
+        });
+        if ((cmpData.length) === 0) {
+            let responseMessage = message.NO_DATA;
+            return response(201, cmpData, responseMessage);
+        }
+
+        let cmpCount = await Company.count({
+            where: { is_deleted: 0 }
+        });
+        if (page > (noOfPage(cmpCount))) {
+            responseMessage = message.NO_PAGE;
+            return response(200, [], responseMessage);
+        }
+
+        let responseData = {
+            count: cmpCount,
+            rows: cmpData,
+            currentPage: page,
+            noOfPages: noOfPage(userCount)
+        }
+        return response(200, responseData, message.FOUND_DATA);
     }
     catch (error) {
         console.log(error);
@@ -68,18 +91,21 @@ module.exports.getAllCompany = async (event) => {
     }
 };
 
-
 module.exports.getCompany = async (event) => {
-    const models = await databaseRead();
-    const { Company } = models;
+    const readModels = await databaseRead();
+    let Company  = readModels.Company;
     try {
         const { cmp_id } = event.pathParameters;
-        let userObj = await Company.findOne({ attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']], where: { cmp_id, is_deleted: 0 } });
-        let reply = message.FOUND_DATA;
-        if (!userObj) {
-            reply = message.REQ_NOT_FOUND;
+        let cmpData = await Company.findOne({ 
+            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
+            where: { cmp_id, is_deleted: 0 } 
+        });
+        let responseMessage = message.FOUND_DATA;
+        if (!cmpData) {
+            responseMessage = message.REQ_NOT_FOUND;
         }
-        return response(201, userObj, reply);
+        // let cmpObj = { Company: cmpData };
+        return response(201, cmpData, responseMessage);
     }
     catch (error) {
         console.log(error);
@@ -90,36 +116,32 @@ module.exports.getCompany = async (event) => {
 
 module.exports.updateCompany = async (event) => {
     try {
-        const userObj = JSON.parse(event.body);
-        const { error, value } = await validateUpdate(userObj);
+        const cmpData = JSON.parse(event.body);
+        let responseMessage;
+        if ( cmpData.email) {
+            responseMessage = message.DEFAULT_EMAIL;
+            return response(200, [], responseMessage);
+        }
+        const { error, value } = await updateSchema.validate(userObj);
         if (error) {
             console.log(error.message);
             return error.message;
         }
-        let reply;
-        if (userObj.founded_date || userObj.email) {
-            reply = message.DEFAULT_CMP;
-            return response(201, "", reply);
-        }
-
         const readModels = await databaseRead();
-        var { Company } = readModels;
-        const { cmp_id } = event.pathParameters;//valid
-        const CmpId = await Company.findOne({ where: { cmp_id, is_deleted: 0 } });
-
-        if (!CmpId) {
-            reply = message.REQ_NOT_FOUND;
-            return response(201, "", reply);
+        let Company  = readModels.Company;
+        const { cmp_id } = event.pathParameters;//
+        const cmpId = await Company.findOne({ where: { cmp_id, is_deleted: 0 } });
+        if (!cmpId) {
+            responseMessage = message.REQ_NOT_FOUND;
+            return response(200, [], responseMessage);
         }
-
         const writeModels = await databaseWrite();
-        var { Company } = writeModels;
-        //
-        value.updated_dt = moment.toString();
-        value.updated_ts = moment.toString();
+        Company  = writeModels.Company;
+        value.updated_dt = date();
+        value.updated_ts = date();
         await Company.update(value, { where: { cmp_id } });
-        reply = message.DATA_UPDATE;
-        return response(201, "", reply);
+        responseMessage = message.DATA_UPDATE;
+        return response(200, [], responseMessage);
     }
     catch (error) {
         console.log(error);
@@ -129,23 +151,21 @@ module.exports.updateCompany = async (event) => {
 
 
 module.exports.deleteCompany = async (event) => {
-
     try {
         const readModels = await databaseRead();
-        var { Company } = readModels;
+        let  Company = readModels.Company;
         const { cmp_id } = event.pathParameters;
-        const CmpId = await Company.findOne({ where: { cmp_id, is_deleted: 0 } });
-        let reply;
-        if (!CmpId) {
-            reply = message.REQ_NOT_FOUND;
-            return response(201, "", reply);
+        const cmpId = await Company.findOne({ where: { cmp_id, is_deleted: 0 } });
+        let responseMessage;
+        if (!cmpId) {
+            responseMessage = message.REQ_NOT_FOUND;
+            return response(200, [], responseMessage);
         }
-
         const writeModels = await databaseWrite();
-        var { Company } = writeModels;
-        await Company.update({ is_deleted: 1, updated_dt: moment.toString(), updated_ts: moment.toString() }, { where: { cmp_id } });
-        reply = message.DATA_DELETE;
-        return response(201, "", reply);
+        Company  = writeModels.Company;
+        await Company.update({ is_deleted: 1, updated_dt: date(), updated_ts: date() }, { where: { cmp_id } });
+        responseMessage = message.DATA_DELETE;
+        return response(200, [], responseMessage);
     }
     catch (error) {
         console.log(error);
@@ -154,74 +174,53 @@ module.exports.deleteCompany = async (event) => {
 };
 
 
-module.exports.usersInCompany = async (event) => {
-
-    const models = await databaseRead();
-    const { User, Company } = models;
-
-    Company.hasMany(User, { foreignKey: 'cmp_id' });
-    User.belongsTo(Company, { foreignKey: 'cmp_id' });
-
-    try {
-        const { cmp_id } = event.pathParameters;
-        let userObj = await Company.findOne({
-            attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']],
-            include: {
-                model: User,
-                where: { cmp_id, is_deleted: 0 },
-                attributes: ["user_id", "username", "email"],
-            }
-        });
-        let reply;
-        if (!userObj) {
-            reply = message.REQ_NOT_FOUND;
-        }
-        return response(201, userObj, reply);
-    }
-    catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
+// module.exports.usersInCompany = async (event) => {
+//     const models = await databaseRead();
+//     const { User, Company } = models;
+//     try {
+//         const { cmp_id } = event.pathParameters;
+//         let cmpData = await Company.findOne({
+//             attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
+//             include: {
+//                 model: User,
+//                 where: { cmp_id, is_deleted: 0 },
+//                 attributes: ["user_id", "username", "email"],
+//             }
+//         });
+//         let responseMessage;
+//         if (!cmpData) {
+//             responseMessage = message.REQ_NOT_FOUND;
+//         }
+//         return response(200, cmpData, responseMessage);
+//     }
+//     catch (error) {
+//         console.log(error);
+//         throw error;
+//     }
+// };
 
 
-module.exports.companyOfUser = async (event) => {
-
-    const models = await databaseRead();
-    const { User, Company } = models;
-
-    Company.hasMany(User, { foreignKey: 'cmp_id' });
-    User.belongsTo(Company, { foreignKey: 'cmp_id' });
-
-    try {
-        const { user_id } = event.pathParameters;
-
-        // let userObj = await Company.findOne({
-        //     attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']],
-        //     include: {
-        //         model: User,
-        //         attributes: ["user_id", "username", "email"],
-        //         where: { user_id, is_deleted: 0 },
-        //     }
-        // });
-
-        let userObj = await User.findOne({
-            attributes: ["user_id", "username", "email"],
-            where: { user_id, is_deleted: 0 },
-            include: {
-                model: Company,
-                attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']],
-            }
-        });
-
-        let reply;
-        if (!userObj) {
-            reply = message.REQ_NOT_FOUND;
-        }
-        return response(201, userObj, reply);
-    }
-    catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
+// module.exports.companyOfUser = async (event) => {
+//     const models = await databaseRead();
+//     const { User, Company } = models;
+//     try {
+//         const { user_id } = event.pathParameters;
+//         let userObj = await User.findOne({
+//             attributes: ["user_id", "username", "email"],
+//             where: { user_id, is_deleted: 0 },
+//             include: {
+//                 model: Company,
+//                 attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']],
+//             }
+//         });
+//         let responseMessage;
+        // if (!userObj) {
+//             responseMessage = message.REQ_NOT_FOUND;
+//         }
+//         return response(200, userObj, responseMessage);
+//     }
+//     catch (error) {
+//         console.log(error);
+//         throw error;
+//     }
+// };

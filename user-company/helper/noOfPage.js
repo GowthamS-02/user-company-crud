@@ -1,3 +1,3 @@
-module.exports.noOfPage = (user) => {
-    return Math.ceil(user.count / 4);
+module.exports.noOfPage = (count) => {
+    return Math.ceil(count / 4);
 };
