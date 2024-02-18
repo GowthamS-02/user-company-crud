@@ -58,12 +58,12 @@ module.exports.UserModel = (Sequelize, sequelize) => {
         is_active: {
             type: Sequelize.BOOLEAN,
             defaultValue: 1,
-            allowNull: false
+            allowNull: true
         },
         is_deleted: {
             type: Sequelize.BOOLEAN,
             defaultValue: 0,
-            allowNull: false
+            allowNull: true
         }
     },
         {

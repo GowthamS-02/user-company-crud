@@ -4,20 +4,37 @@ const message = require('./message');
 let content = {
     name: Joi.string().min(4).max(50).required()
         .messages({
-            'string.empty': 'Display name cannot be empty',
+            'string.empty': 'Name cannot be empty',
             'string.min': 'Name should be minimum of 4 characters',
             'string.max': 'Name should be maximum of 50 characters',
         }),
-    cmp_id: Joi.number().integer(),
+    cmp_id: Joi.number().integer()
+        .messages({
+            'any.only': 'Enter data in numbers'
+        }),
     email: Joi.string().email().required()
-        .messages({ 'string.email': 'Enter a valid email' }),
+        .messages({
+            'string.empty': 'Email cannot be empty',
+            'string.email': 'Enter a valid email'
+        }),
     password: Joi.string().min(4).required()
-        .messages({ 'string.min': 'Password must have a minimum length of 4 characters' }),
-    first_name: Joi.string().min(4),
-    last_name: Joi.string().min(1),
+        .messages({
+            'string.min': 'Password must have a minimum length of 4 characters'
+        }),
+    first_name: Joi.string().min(4)
+        .messages({
+            'string.min': 'Name should be minimum of 4 characters',
+        }),
+    last_name: Joi.string().min(1)
+        .messages({
+            'string.min': 'Name should be minimum of 1 characters',
+        }),
     gender: Joi.string().valid('male', 'female', 'transgender', 'others').required()
         .messages({ 'any.only': 'Gender should be one the following: male, female, transgender and others' }),
-    date: Joi.date(),
+    date: Joi.date()
+        .messages({
+            'any.only': 'Enter date in correct format'
+        }),
     industry: Joi.string().required(),
     website: Joi.string().required(),
     cmp_address: Joi.string().required(),
@@ -39,7 +56,6 @@ let optionalContent = {
     website: Joi.string(),
     cmp_address: Joi.string()
 }
-
 
 module.exports.userSchema = Joi.object({
     username: content.name,

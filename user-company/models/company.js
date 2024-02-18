@@ -1,4 +1,4 @@
-module.exports.CompanyModule = (Sequelize, sequelize) => {
+module.exports.CompanyModel = (Sequelize, sequelize) => {
     return sequelize.define('Company', {
         cmp_id: {
             type: Sequelize.INTEGER(50),
@@ -55,12 +55,12 @@ module.exports.CompanyModule = (Sequelize, sequelize) => {
         is_active: {
             type: Sequelize.BOOLEAN,
             defaultValue: 1,
-            allowNull: false
+            allowNull: true
         },
         is_deleted: {
             type: Sequelize.BOOLEAN,
             defaultValue: 0,
-            allowNull: false
+            allowNull: true
         }
     },
         {
