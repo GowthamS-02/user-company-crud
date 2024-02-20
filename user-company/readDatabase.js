@@ -2,23 +2,21 @@ const Sequelize = require('sequelize');
 require('dotenv').config();
 const { UserModel } = require('./models/user.js');
 const { CompanyModel } = require('./models/company.js');
-const username = process.env.DB_USERNAME;
-const password = process.env.DB_PASSWORD;
-const db_name = process.env.DB_NAME;
+// const Op = Sequelize.Op;
 
-const readData = new Sequelize(db_name, username, password, {
+const readDatabase = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
     dialect: 'mysql'
 });
-const User = UserModel(Sequelize, readData);
-const Company = CompanyModel(Sequelize, readData);
+const User = UserModel(Sequelize, readDatabase);
+const Company = CompanyModel(Sequelize, readDatabase);
+Company.hasMany(User, { foreignKey: 'cmp_id' });
+User.belongsTo(Company, { foreignKey: 'cmp_id' });
 const models = { User, Company };
 
 const databaseRead = async () => {
     try {
-        await readData.authenticate();
+        await readDatabase.authenticate();
         console.log("Read database Connection Established!");
-        Company.hasMany(User, { foreignKey: 'cmp_id' });
-        User.belongsTo(Company, { foreignKey: 'cmp_id' });
         return models;
     }
     catch (error) {

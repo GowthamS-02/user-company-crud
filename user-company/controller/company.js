@@ -1,9 +1,9 @@
 const databaseWrite = require('../writeDatabase.js');
 const databaseRead = require('../readDatabase.js');
 const { response } = require('../helper/response.js');
-const { cmpSchema, updateSchema } = require('../helper/validation.js');
+const { companyData, updateCompanyData } = require('../helper/validation.js');
 const message = require('../helper/message.js');
-const { noOfPage } = require('../helper/noOfPage.js');
+// const { noOfPage } = require('../helper/noOfPage.js');
 const { date } = require('../helper/moment.js');
 
 
@@ -13,27 +13,27 @@ module.exports.createCompany = async (event) => {
             return response(400, [], message.ENTER_DATA);
         }
         const inputData = JSON.parse(event.body);
-        const { error, value } = await cmpSchema.validate(inputData);
+        const { error, value } = await companyData.validate(inputData);
         if (error) {
             console.log(error.message);
             return error.message;
         }
         const readModels = await databaseRead();
-        let Company  = readModels.Company;
+        let { Company } = readModels;//
         // await Company.sync( {alter: true});
         const cmpMail = inputData.email;
-        const existEmail = await Company.findOne({ where: { email: cmpMail, is_deleted: 0 } });//emai;
+        const existEmail = await Company.findOne({ where: { email: cmpMail, is_deleted: 0 } });
         if (existEmail) {
             let responseMessage = message.EXIST_CMP;
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        Company  = writeModels.Company;
-
-        value.added_at = date();
-        value.added_ts = date();//utc
-        value.updated_dt = date();
-        value.updated_ts = date();
+        Company = writeModels.Company;
+        let currentDate = date()
+        value.added_at = currentDate;
+        value.added_ts = currentDate;//utc
+        value.updated_dt = currentDate;
+        value.updated_ts = currentDate;
 
         await Company.create(value);
         return response(201, [], message.CMP_CREATE);
@@ -46,42 +46,53 @@ module.exports.createCompany = async (event) => {
 
 
 module.exports.getAllCompany = async (event) => {
-    const readModels = await databaseRead();
-    let Company  = readModels.Company;
     try {
-        let body = JSON.stringify(event.body)
-
-        let page = 1;
-        if (body !== null) {
-            if(body.page > 0){
-                page = pageNum
-            }
+        const body = JSON.stringify(event.body);
+        if ((event.body) === null) {
+            return response(400, [], message.ENTER_DATA);
         }
-        let cmpData = await Company.findAll({
-            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
+        const { error, value } = await queryDataValues.validate(body);
+        if (error) {
+            console.log(error.message);
+            return error.message;
+        }
+        let page = body.page;
+        let limit = body.limit;
+
+        const readModels = await databaseRead();
+        let { Company } = readModels;
+        let cmpObj = await Company.findAll({
+            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website'],
+            ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
             where: { is_deleted: 0 },
             order: [['cmp_id', 'ASC']],
-            limit: 4,
-            offset: 4 * (page - 1),
+            limit: limit,//
+            offset: limit * (page - 1),
         });
-        if ((cmpData.length) === 0) {
+        cmpObjObj = cmpObj.map(company => {
+            company = company.toJSON();
+            company.Added_date = moment(company.Added_date).format('D MMM YYYY h:mmA');
+            company.Last_updated = moment(company.Last_updated).format('D MMM YYYY h:mmA');
+            return company;
+        });
+        if ((cmpObj.length) === 0) {
             let responseMessage = message.NO_DATA;
-            return response(201, cmpData, responseMessage);
+            return response(201, cmpObj, responseMessage);
         }
 
         let cmpCount = await Company.count({
             where: { is_deleted: 0 }
         });
-        if (page > (noOfPage(cmpCount))) {
-            responseMessage = message.NO_PAGE;
-            return response(200, [], responseMessage);
-        }
+        // if (page > (noOfPage(cmpCount))) {
+        //     responseMessage = message.NO_PAGE;
+        //     return response(200, [], responseMessage);
+        // }
 
         let responseData = {
             count: cmpCount,
-            rows: cmpData,
+            rows: cmpObj,
             currentPage: page,
-            noOfPages: noOfPage(userCount)
+            // noOfPages: noOfPage(userCount)
         }
         return response(200, responseData, message.FOUND_DATA);
     }
@@ -93,19 +104,26 @@ module.exports.getAllCompany = async (event) => {
 
 module.exports.getCompany = async (event) => {
     const readModels = await databaseRead();
-    let Company  = readModels.Company;
+    let { Company } = readModels;
     try {
         const { cmp_id } = event.pathParameters;
-        let cmpData = await Company.findOne({ 
-            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
-            where: { cmp_id, is_deleted: 0 } 
+        let cmpObj = await Company.findOne({
+            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website'],
+            ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
+            where: { cmp_id, is_deleted: 0 }
         });
         let responseMessage = message.FOUND_DATA;
-        if (!cmpData) {
+        if (!cmpObj) {
             responseMessage = message.REQ_NOT_FOUND;
         }
+        cmpObjObj = cmpObj.map(company => {
+            company = company.toJSON();
+            company.Added_date = moment(company.Added_date).format('D MMM YYYY h:mmA');
+            company.Last_updated = moment(company.Last_updated).format('D MMM YYYY h:mmA');
+            return company;
+        });
         // let cmpObj = { Company: cmpData };
-        return response(201, cmpData, responseMessage);
+        return response(201, cmpObj, responseMessage);
     }
     catch (error) {
         console.log(error);
@@ -116,29 +134,26 @@ module.exports.getCompany = async (event) => {
 
 module.exports.updateCompany = async (event) => {
     try {
-        const cmpData = JSON.parse(event.body);
-        let responseMessage;
-        if ( cmpData.email) {
-            responseMessage = message.DEFAULT_EMAIL;
-            return response(200, [], responseMessage);
-        }
-        const { error, value } = await updateSchema.validate(userObj);
+        const cmpObj = JSON.parse(event.body);
+        const { error, value } = await updateCompanyData.validate(cmpObj);
         if (error) {
             console.log(error.message);
             return error.message;
         }
         const readModels = await databaseRead();
-        let Company  = readModels.Company;
-        const { cmp_id } = event.pathParameters;//
-        const cmpId = await Company.findOne({ where: { cmp_id, is_deleted: 0 } });
-        if (!cmpId) {
+        let { Company } = readModels;
+        const { email } = event.pathParameters;//
+        const cmpMail = await Company.findOne({ where: { email, is_deleted: 0 } });
+        let responseMessage;
+        if (!cmpMail) {
             responseMessage = message.REQ_NOT_FOUND;
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        Company  = writeModels.Company;
-        value.updated_dt = date();
-        value.updated_ts = date();
+        Company = writeModels;
+        let currentDate = date();
+        value.updated_dt = currentDate;
+        value.updated_ts = currentDate;
         await Company.update(value, { where: { cmp_id } });
         responseMessage = message.DATA_UPDATE;
         return response(200, [], responseMessage);
@@ -153,7 +168,7 @@ module.exports.updateCompany = async (event) => {
 module.exports.deleteCompany = async (event) => {
     try {
         const readModels = await databaseRead();
-        let  Company = readModels.Company;
+        let { Company } = readModels;
         const { cmp_id } = event.pathParameters;
         const cmpId = await Company.findOne({ where: { cmp_id, is_deleted: 0 } });
         let responseMessage;
@@ -162,16 +177,22 @@ module.exports.deleteCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        Company  = writeModels.Company;
-        await Company.update({ is_deleted: 1, updated_dt: date(), updated_ts: date() }, { where: { cmp_id } });
+        Company = writeModels;
+        let { User } = writeModels;
+        let currentDate = date();
+        await Company.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { cmp_id } });
+        await User.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { cmp_id, is_deleted: 0 } });
         responseMessage = message.DATA_DELETE;
         return response(200, [], responseMessage);
+        //user delete
     }
     catch (error) {
         console.log(error);
         throw error;
     }
 };
+
+
 
 
 // module.exports.usersInCompany = async (event) => {
@@ -214,7 +235,7 @@ module.exports.deleteCompany = async (event) => {
 //             }
 //         });
 //         let responseMessage;
-        // if (!userObj) {
+// if (!userObj) {
 //             responseMessage = message.REQ_NOT_FOUND;
 //         }
 //         return response(200, userObj, responseMessage);

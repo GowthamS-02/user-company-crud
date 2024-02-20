@@ -31,7 +31,7 @@ functions:
     handler: controller/user.updateUser
     events:
       - httpApi:
-          path:  user/update/{user_id}
+          path:  user/update/{email}
           method: patch
   deleteUser:
     handler: controller/user.deleteUser
@@ -61,7 +61,7 @@ functions:
     handler: controller/company.updateCompany
     events:
       - httpApi:
-          path:  company/update/{cmp_id}
+          path:  company/update/{email}
           method: patch
   deleteCompany:
     handler: controller/company.deleteCompany
