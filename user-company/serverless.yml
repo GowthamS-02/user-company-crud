@@ -69,6 +69,45 @@ functions:
       - httpApi:
           path:  company/delete/{cmp_id}
           method: delete
+  createTarget:
+    handler: controller/target.createTarget
+    events:
+      - httpApi:
+          path: target/create
+          method: post
+  getAllTargets:
+    handler: controller/target.getAllTargets
+    events:
+      - httpApi:
+          path: targets
+          method: post
+  # getTarget:
+  #   handler: controller/target.getTarget
+  #   events:
+  #     - httpApi:
+  #         path:  target/find/{target_id}
+  #         method: get
+  updateTarget:
+    handler: controller/target.updateTarget
+    events:
+      - httpApi:
+          path:  target/update/{user_id}
+          method: patch
+  deleteTarget:
+    handler: controller/target.deleteTarget
+    events:
+      - httpApi:
+          path:  target/delete/{target_id}
+          method: delete
+
+
+
+
+
+
+
+
+
   # usersInCompany:
   #   handler: controller/company.usersInCompany
   #   events:

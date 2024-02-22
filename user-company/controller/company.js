@@ -4,8 +4,7 @@ const { response } = require('../helper/response.js');
 const { companyData, updateCompanyData } = require('../helper/validation.js');
 const message = require('../helper/message.js');
 // const { noOfPage } = require('../helper/noOfPage.js');
-const { date } = require('../helper/moment.js');
-
+const { date, displayDate } = require('../helper/moment.js');
 
 module.exports.createCompany = async (event) => {
     try {
@@ -16,7 +15,7 @@ module.exports.createCompany = async (event) => {
         const { error, value } = await companyData.validate(inputData);
         if (error) {
             console.log(error.message);
-            return error.message;
+            return response(200, [], error.message)
         }
         const readModels = await databaseRead();
         let { Company } = readModels;//
@@ -28,14 +27,14 @@ module.exports.createCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        Company = writeModels.Company;
+        // Company = writeModels.Company;
         let currentDate = date()
         value.added_at = currentDate;
         value.added_ts = currentDate;//utc
         value.updated_dt = currentDate;
         value.updated_ts = currentDate;
 
-        await Company.create(value);
+        await writeModels.Company.create(value);
         return response(201, [], message.CMP_CREATE);
     }
     catch (error) {
@@ -43,7 +42,6 @@ module.exports.createCompany = async (event) => {
         throw error;
     }
 };
-
 
 module.exports.getAllCompany = async (event) => {
     try {
@@ -69,16 +67,16 @@ module.exports.getAllCompany = async (event) => {
             limit: limit,//
             offset: limit * (page - 1),
         });
-        cmpObjObj = cmpObj.map(company => {
-            company = company.toJSON();
-            company.Added_date = moment(company.Added_date).format('D MMM YYYY h:mmA');
-            company.Last_updated = moment(company.Last_updated).format('D MMM YYYY h:mmA');
-            return company;
-        });
         if ((cmpObj.length) === 0) {
             let responseMessage = message.NO_DATA;
             return response(201, cmpObj, responseMessage);
         }
+        cmpObj = cmpObj.map(company => {
+            company = company.toJSON();
+            company.Added_date = displayDate(company.Added_date);
+            company.Last_updated = displayDate(company.Last_updated);
+            return company;
+        });
 
         let cmpCount = await Company.count({
             where: { is_deleted: 0 }
@@ -103,10 +101,10 @@ module.exports.getAllCompany = async (event) => {
 };
 
 module.exports.getCompany = async (event) => {
-    const readModels = await databaseRead();
-    let { Company } = readModels;
     try {
         const { cmp_id } = event.pathParameters;
+        const readModels = await databaseRead();
+        let { Company } = readModels;
         let cmpObj = await Company.findOne({
             attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website'],
             ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
@@ -115,11 +113,12 @@ module.exports.getCompany = async (event) => {
         let responseMessage = message.FOUND_DATA;
         if (!cmpObj) {
             responseMessage = message.REQ_NOT_FOUND;
+            return response(200, cmpObj, responseMessage);
         }
-        cmpObjObj = cmpObj.map(company => {
+        cmpObj = cmpObj.map(company => {
             company = company.toJSON();
-            company.Added_date = moment(company.Added_date).format('D MMM YYYY h:mmA');
-            company.Last_updated = moment(company.Last_updated).format('D MMM YYYY h:mmA');
+            company.Added_date = displayDate(company.Added_date);
+            company.Last_updated = displayDate(company.Last_updated);
             return company;
         });
         // let cmpObj = { Company: cmpData };
@@ -131,14 +130,13 @@ module.exports.getCompany = async (event) => {
     }
 };
 
-
 module.exports.updateCompany = async (event) => {
     try {
         const cmpObj = JSON.parse(event.body);
         const { error, value } = await updateCompanyData.validate(cmpObj);
         if (error) {
             console.log(error.message);
-            return error.message;
+            return response(200, [], error.message)
         }
         const readModels = await databaseRead();
         let { Company } = readModels;
@@ -150,11 +148,11 @@ module.exports.updateCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        Company = writeModels;
+        // Company = writeModels.Company;
         let currentDate = date();
         value.updated_dt = currentDate;
         value.updated_ts = currentDate;
-        await Company.update(value, { where: { cmp_id } });
+        await writeModels.Company.update(value, { where: { email, is_deleted: 0 } });
         responseMessage = message.DATA_UPDATE;
         return response(200, [], responseMessage);
     }
@@ -163,7 +161,6 @@ module.exports.updateCompany = async (event) => {
         throw error;
     }
 };
-
 
 module.exports.deleteCompany = async (event) => {
     try {
@@ -177,14 +174,13 @@ module.exports.deleteCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        Company = writeModels;
+        // Company = writeModels.Company;
         let { User } = writeModels;
         let currentDate = date();
-        await Company.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { cmp_id } });
+        await writeModels.Company.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { cmp_id, is_deleted: 0 } });
         await User.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { cmp_id, is_deleted: 0 } });
         responseMessage = message.DATA_DELETE;
         return response(200, [], responseMessage);
-        //user delete
     }
     catch (error) {
         console.log(error);

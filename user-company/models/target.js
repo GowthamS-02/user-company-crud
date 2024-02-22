@@ -1,26 +1,12 @@
-module.exports.UserModel = (Sequelize, sequelize) => {
-    return sequelize.define('User', {
-        user_id: {
+module.exports.TargetModel = (Sequelize, sequelize) => {
+    return sequelize.define('sales_assssociates', {
+        target_id: {
             type: Sequelize.INTEGER(50),
             primaryKey: true,
-            autoIncrement: true,
-            //allowNull: false
+            autoIncrement: true
         },
-        username: {
-            type: Sequelize.STRING(250),
-            allowNull: false
-        },
-        cmp_id: {
+        user_id: {
             type: Sequelize.INTEGER(50),
-            allowNull: false
-        },
-        email: {
-            type: Sequelize.STRING(250),
-            unique: true,
-            allowNull: false
-        },
-        password: {
-            type: Sequelize.STRING(250),
             allowNull: false
         },
         first_name: {
@@ -31,12 +17,37 @@ module.exports.UserModel = (Sequelize, sequelize) => {
             type: Sequelize.STRING(250),
             allowNull: false
         },
-        gender: {
+        assoc_team_name: {
             type: Sequelize.STRING(250),
             allowNull: false
         },
-        birth_date: {
+        assoc_target_mthly: {
+            type: Sequelize.INTEGER(250),
+            allowNull: false
+        },
+        cmp_id: {
+            type: Sequelize.INTEGER(50),
+            allowNull: false
+        },
+        assoc_st_dt: {
             type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        assoc_en_dt: {
+            type: Sequelize.DATEONLY,
+            allowNull: false
+        },
+        assoc_target_mthly_usd: {
+            type: Sequelize.STRING(250),
+            allowNull: true
+        },
+        is_team_lead: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: 0,
+            allowNull: true
+        },
+        currency: {
+            type: Sequelize.STRING(250),
             allowNull: false
         },
         added_at: {
@@ -71,5 +82,4 @@ module.exports.UserModel = (Sequelize, sequelize) => {
             timestamps: false
         }
     );
-
 }

@@ -15,7 +15,10 @@ const message = {
     DEFAULT_CMP: "Company ID, founded date and email are default values.",
     DEFAULT_EMAIL: "Email is a default value.",
     USER_NOT_FOUND: "Requested User Not Found",
-    NO_PAGE: "Page does't exist"
+    NO_PAGE: "Page does't exist",
+    TARGET_CREATE: "New target created",
+    USER_ID_NOT_FOUND: "User ID not found",
+    CMP_ID_NOT_FOUND: "Company ID not found"
 }
 
 module.exports = message;
