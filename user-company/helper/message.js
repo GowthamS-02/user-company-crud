@@ -1,7 +1,7 @@
 const message = {
     ENTER_DATA: "Enter data",
     USER_CREATE: "New user Created",
-    NO_DATA: "Data is not found",
+    NO_DATA: "Data not found",
     FOUND_DATA: "Requested data Found",
     REQ_NOT_FOUND: "Requested data not found",
     DATA_UPDATE: "Data Updated",

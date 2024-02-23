@@ -1,0 +1,86 @@
+ let userCount = await User.count({
+            where: queryUser,
+            include: [
+                {model: Company,
+                where: queryCmp,
+                },
+                {model: Target,
+                    where: queryTarget,
+                }
+            ],
+        });
+
+
+
+                if (page > (noOfPage(cmpCount))) {
+            responseMessage = message.NO_PAGE;
+            return response(200, [], responseMessage);
+        }
+
+
+controller/company.js -> last cotent
+        // module.exports.usersInCompany = async (event) => {
+//     const models = await databaseRead();
+//     const { User, Company } = models;
+//     try {
+//         const { cmp_id } = event.pathParameters;
+//         let cmpData = await Company.findOne({
+//             attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
+//             include: {
+//                 model: User,
+//                 where: { cmp_id, is_deleted: 0 },
+//                 attributes: ["user_id", "username", "email"],
+//             }
+//         });
+//         let responseMessage;
+//         if (!cmpData) {
+//             responseMessage = message.REQ_NOT_FOUND;
+//         }
+//         return response(200, cmpData, responseMessage);
+//     }
+//     catch (error) {
+//         console.log(error);
+//         throw error;
+//     }
+// };
+
+
+// module.exports.companyOfUser = async (event) => {
+//     const models = await databaseRead();
+//     const { User, Company } = models;
+//     try {
+//         const { user_id } = event.pathParameters;
+//         let userObj = await User.findOne({
+//             attributes: ["user_id", "username", "email"],
+//             where: { user_id, is_deleted: 0 },
+//             include: {
+//                 model: Company,
+//                 attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']],
+//             }
+//         });
+//         let responseMessage;
+// if (!userObj) {
+//             responseMessage = message.REQ_NOT_FOUND;
+//         }
+//         return response(200, userObj, responseMessage);
+//     }
+//     catch (error) {
+//         console.log(error);
+//         throw error;
+//     }
+// };
+
+
+
+  # usersInCompany:
+  #   handler: controller/company.usersInCompany
+  #   events:
+  #     - httpApi:
+  #         path:  users_in_company/{cmp_id}
+  #         method: get
+  # companyOfUser:
+  #   handler: controller/company.companyOfUser
+  #   events:
+  #     - httpApi:
+  #         path:  company_of_user/{user_id}
+  #         method: get

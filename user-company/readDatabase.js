@@ -11,8 +11,8 @@ const User = UserModel(Sequelize, readDatabase);
 const Company = CompanyModel(Sequelize, readDatabase);
 const Target = TargetModel(Sequelize, readDatabase);
 Company.hasMany(User, { foreignKey: 'cmp_id' });
-User.belongsTo(Company, { foreignKey: 'cmp_id' });
-User.hasMany(Target, {foreignKey: 'user_id'})
+User.belongsTo(Company, { as: 'company', foreignKey: 'cmp_id' });
+User.hasMany(Target, { as: 'salesAssociates', foreignKey: 'user_id'})
 const models = { User, Company, Target };
 
 const databaseRead = async () => {

@@ -91,7 +91,7 @@ functions:
     handler: controller/target.updateTarget
     events:
       - httpApi:
-          path:  target/update/{user_id}
+          path:  target/update/{target_id}
           method: patch
   deleteTarget:
     handler: controller/target.deleteTarget

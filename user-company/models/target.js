@@ -1,5 +1,5 @@
 module.exports.TargetModel = (Sequelize, sequelize) => {
-    return sequelize.define('sales_assssociates', {
+    return sequelize.define('sales_associates', {
         target_id: {
             type: Sequelize.INTEGER(50),
             primaryKey: true,

@@ -1,7 +1,7 @@
 module.exports.response = (code, data, msg) => {
 
     let output = {
-        showMessage: 1,
+        showMessage: true,
         responseCode: 1,
         responseStatus: "Success",
         responseMessage: msg,

@@ -17,12 +17,12 @@ module.exports.createTarget = async (event) => {
             return response(200, [], error.message)
         }
         const readModels = await databaseRead();
-        let { Company, User } = readModels;
+        let { Company, User, Target } = readModels;
         let userId = inputData.user_id;
         let cmpId = inputData.cmp_id;
         let userData = await User.findOne({
             attributes: ['first_name', 'last_name'],
-            where: { user_id: userId, cmp_id: cmpId, is_deleted: 0 }//find user and company simultaneously
+            where: { user_id: userId, cmp_id: cmpId, is_deleted: 0 }//find user and company simultaneously?
         })
         let responseMessage;
         if (!userData) {
@@ -36,12 +36,18 @@ module.exports.createTarget = async (event) => {
         //     return response(200, [], responseMessage);
         // }
 
+        let targetObj = await Target.findOne({
+            where: { user_id: userId, cmp_id: cmpId, is_deleted: 0 }
+        })
         const writeModels = await databaseWrite();
-        let { Target } = writeModels;
+        let currentDate = date();
+        if(targetObj){
+            await writeModels.Target.update({ is_deleted: 1, is_active: 0, updated_dt: currentDate, updated_ts: currentDate }, {where: { user_id: userId, cmp_id: cmpId, is_deleted: 0 } });
+            console.log("existing user deleted");
+        }
         // await Target.sync( {alter: true});
         value.first_name = userData.first_name;
         value.last_name = userData.last_name;
-        let currentDate = date();
         value.added_at = currentDate;
         value.added_ts = currentDate;
         value.updated_dt = currentDate;
@@ -75,28 +81,25 @@ module.exports.getAllTargets = async (event) => {
         }
         if (body.user_id) {
             query.user_id = body.user_id;
-            console.log(query.user_id);
         }
-        if (body.date) {
+        if (body.date) {//which date
             query.added_at = body.date;
         }
         console.log(query);
         const { Target } = await databaseRead();
         let targetObj = await Target.findAll({
-            attributes: [['user_id', 'User_id'], ['cmp_id', 'Company_id'], ['assoc_team_name', 'Team_name'],
-            ['assoc_target_mthly', 'Monthly_target'], ['currency', 'Currency'], ['assoc_st_dt', 'Start_date'],
-            ['assoc_en_dt', 'End_date'], ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
+            attributes: [['user_id', 'user_id'], ['cmp_id', 'company_id'], ['assoc_team_name', 'team_name'],
+            ['assoc_target_mthly', 'monthly_target'], ['currency', 'currency'], ['assoc_st_dt', 'start_date'],
+            ['assoc_en_dt', 'end_date'], ['added_ts', 'added_date'], ['updated_ts', 'last_updated']],
             where: query,
             order: [['target_id', 'ASC']],
             limit: limit,
             offset: limit * (page - 1)
         })
-
         if ((targetObj.length) === 0) {
             let responseMessage = message.NO_DATA;
             return response(200, [], responseMessage);
         }
-
         targetObj = targetObj.map(target => {
             target = target.toJSON();
             target.Added_date = displayDate(target.Added_date);
@@ -155,14 +158,14 @@ module.exports.updateTarget = async (event) => {
         const { error, value } = await updateTargetData.validate(targetObj);
         if (error) {
             console.log(error.message);
-            return response(200, [], error.message)
+            return response(200, [], error.message);
         }
         const readModels = await databaseRead();
         let { Target } = readModels;
-        const { user_id } = event.pathParameters;
-        const userId = await Target.findOne({ where: { user_id, is_deleted: 0 } });
+        const { target_id } = event.pathParameters;
+        const targetId = await Target.findOne({ where: { target_id, is_deleted: 0 } });
         let responseMessage;
-        if (!userId) {
+        if (!targetId) {
             responseMessage = message.REQ_NOT_FOUND;
             return response(200, [], responseMessage);
         }
@@ -170,7 +173,7 @@ module.exports.updateTarget = async (event) => {
         let currentDate = date();
         value.updated_dt = currentDate;
         value.updated_ts = currentDate;
-        await writeModels.Target.update(value, { where: { user_id, is_deleted: 0 } });
+        await writeModels.Target.update(value, { where: { target_id, is_deleted: 0 } });
         responseMessage = message.DATA_UPDATE;
         return response(200, [], responseMessage);
     }

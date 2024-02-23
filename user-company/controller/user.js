@@ -3,9 +3,8 @@ const databaseRead = require('../readDatabase.js');
 const { response } = require('../helper/response.js');
 const { userData, updateUserData, queryUserData } = require('../helper/validation.js');
 const message = require('../helper/message.js');
-// const { noOfPage } = require('../helper/noOfPage.js');
 const { date, displayDate } = require('../helper/moment.js');
-const moment = require('moment');
+const { noOfPage } = require('../helper/noOfPage.js');
 const { Op } = require('sequelize');
 
 module.exports.createUser = async (event) => {
@@ -18,7 +17,7 @@ module.exports.createUser = async (event) => {
         if (error) {
             console.log(error.message);
             return response(200, [], error.message)
-            // return error.message;
+
         }
         const readModels = await databaseRead();
         let { User } = readModels;
@@ -30,12 +29,11 @@ module.exports.createUser = async (event) => {
             return response(200, [], responseMessage)
         }
         const writeModels = await databaseWrite();
-        // User = writeModels.User;
 
         let currentDate = date();
         //inputData.added_at = date();
         value.added_at = currentDate;
-        value.added_ts = currentDate;//utc
+        value.added_ts = currentDate;
         value.updated_dt = currentDate;
         value.updated_ts = currentDate;
 
@@ -56,7 +54,7 @@ module.exports.getAllUsers = async (event) => {
         }
         let queryUser = { is_deleted: 0 };//for query in user table
         let queryCmp = { is_deleted: 0 };//for query in company table
-        let queryTarget = { is_deleted: 0 }
+        let queryTarget = { is_deleted: 0 }//new
 
         const { error, value } = await queryUserData.validate(body);
         if (error) {
@@ -66,11 +64,7 @@ module.exports.getAllUsers = async (event) => {
 
         let page = body.page;
         let limit = body.limit;
-        // queryUser.cmp_id = body.cmp_id;
-        queryTarget.user_id = body.user_id;
-        if (body.cmp_id) {
-            queryUser.cmp_id = body.cmp_id;//cmp
-        }
+        queryUser.cmp_id = body.cmp_id;
         if (body.date) {
             queryUser.added_at = body.date;
         }
@@ -81,66 +75,45 @@ module.exports.getAllUsers = async (event) => {
             queryUser.username = { [Op.like]: '%' + body.username + '%' };
         }
 
-        // const models = await databaseRead();
-        // const { User, Company } = models;
         const { User, Company, Target } = await databaseRead();
         let userObj = await User.findAll({
-            attributes: [['username', 'User_name'], ['cmp_id', 'Company_id'], ['email', 'User_mail'],
-            ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
-            // [ moment('added_ts').format('D MMM YYYY h:mmA'), 'Added_date']],
+            attributes: [['username', 'user_name'], ['cmp_id', 'company_id'], ['email', 'user_mail'],
+            ['added_ts', 'added_date'], ['updated_ts', 'last_updated']],
             where: queryUser,
             order: [['username', 'ASC']],
             include: [
-                {model: Company,
-                where: queryCmp,
-                attributes: [['name', 'Company_name'], ['email', 'Company_mail']],},
-                {model: Target,
-                    where: queryTarget,
-                    attributes: [['assoc_team_name', 'Team_name'],
-                    ['assoc_target_mthly', 'Monthly_target'], ['currency', 'Currency']]},
+                {model: Company, as: 'company',
+                // where: queryCmp, 
+                attributes: [['name', 'company_name'], ['email', 'company_mail']],},
+                {model: Target, as: "salesAssociates",
+                    // where: queryTarget,
+                    attributes: [['assoc_team_name', 'team_name'],
+                    ['assoc_target_mthly', 'monthly_target'], ['currency', 'currency']]},
             ],
             limit: limit,
             offset: limit * (page - 1)
         })
-        // .map((user) =>{
-        //     user.Added_date = moment(user.Added_date).format('D MMM YYYY h:mmA');
-        //     return user
-        // });
-        // userData.Added_date = moment(userData.Added_date).format('D MMM YYYY h:mmA');
 
         if ((userObj.length) === 0) {
             let responseMessage = message.NO_DATA;
             return response(200, userObj, responseMessage);
         }
 
-        userObj = userObj.map(user => {//samefunction
+        userObj = userObj.map(user => {
             user = user.toJSON();
-            user.Added_date = displayDate(user.Added_date);
-            user.Last_updated = displayDate(user.Last_updated);
+            user.added_date = displayDate(user.added_date);
+            user.last_updated = displayDate(user.last_updated);
             return user;
         });
 
         let userCount = await User.count({
-            where: queryUser,
-            include: [
-                {model: Company,
-                where: queryCmp,
-                },
-                {model: Target,
-                    where: queryTarget,
-                }
-            ],
+            where: queryUser
         });
-        // if (page > (noOfPage(userCount))) {
-        //     responseMessage = message.NO_PAGE;
-        //     return response(200, [], responseMessage);
-        // }
 
         let responseData = {
             count: userCount,
-            rows: userObj,
+            userDetails: userObj,
             currentPage: page,
-            // noOfPages: noOfPage(userCount)
         }
         return response(200, responseData, message.FOUND_DATA)
     }
@@ -156,8 +129,8 @@ module.exports.getUser = async (event) => {
         const readModels = await databaseRead();
         let { User } = readModels;
         let userObj = await User.findOne({
-            attributes: [['username', 'User_name'], ['cmp_id', 'Company_id'], ['email', 'User_mail'],
-            ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
+            attributes: [['username', 'user_name'], ['cmp_id', 'company_id'], ['email', 'user_mail'],
+            ['added_ts', 'added_date'], ['updated_ts', 'last_updated']],
             where: { user_id, is_deleted: 0 }
         });
         let responseMessage = message.FOUND_DATA;
@@ -167,11 +140,10 @@ module.exports.getUser = async (event) => {
         }
         userObj = userObj.map(user => {
             user = user.toJSON();
-            user.Added_date = displayDate(user.Added_date);
-            user.Last_updated = displayDate(user.Last_updated);
+            user.added_date = displayDate(user.added_date);
+            user.last_updated = displayDate(user.last_updated);
             return user;
         });
-        // let userObj = { User: userData };
         return response(200, userObj, responseMessage);
     }
     catch (error) {
@@ -190,7 +162,7 @@ module.exports.updateUser = async (event) => {
         }
         const readModels = await databaseRead();
         let { User } = readModels;
-        const { email } = event.pathParameters;//email
+        const { email } = event.pathParameters;
         const userEmail = await User.findOne({ where: { email, is_deleted: 0 } });
         let responseMessage;
         if (!userEmail) {
@@ -224,7 +196,6 @@ module.exports.deleteUser = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        // User = writeModels.User;
         let currentDate = date();
         await writeModels.User.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { user_id, is_deleted: 0 } });
         responseMessage = message.DATA_DELETE;

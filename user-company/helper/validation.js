@@ -57,9 +57,17 @@ let content = {
             'string.empty': 'Gender cannot be empty',
             'any.only': 'Gender should be one the following: male, female, transgender and others'
         }),
-    date: Joi.date().required()
+    date: Joi.date()
         .messages({
             'any.only': 'Enter date in correct format'
+        }),
+    birth_date: Joi.date().required()
+        .messages({
+            'any.only': 'Enter birth date in correct format'
+        }),
+    founded_date: Joi.date().required()
+        .messages({
+            'any.only': 'Enter founded date in correct format'
         }),
     assoc_st_dt: Joi.date().required()
         .messages({
@@ -176,9 +184,13 @@ let optionalContent = {
             'string.empty': 'Lastname cannot be empty',
             'string.min': 'Name should be minimum of 1 characters',
         }),
-    date: Joi.date()
+    birth_date: Joi.date()
         .messages({
-            'any.only': 'Enter date in correct format'
+            'any.only': 'Enter birth date in correct format'
+        }),
+    founded_date: Joi.date()
+        .messages({
+            'any.only': 'Enter founded date in correct format'
         }),
     gender: Joi.string().valid('male', 'female', 'transgender', 'others')
         .messages({
@@ -199,7 +211,7 @@ let optionalContent = {
             'string.empty': 'Address cannot be empty',
             'string.base': 'Company Address must be a string',
         }),
-        assoc_st_dt: Joi.date()
+    assoc_st_dt: Joi.date()
         .messages({
             'any.only': 'assoc_st_dt  in correct format'
         }),
@@ -207,7 +219,7 @@ let optionalContent = {
         .messages({
             'any.only': 'assoc_en_dt  in correct format'
         }),
-        assoc_target_mthly: Joi.number().integer().min(1)
+    assoc_target_mthly: Joi.number().integer().min(1)
         .messages({
             'number.base': 'Monthly Target must be a number',
             'number.integer': 'Monthly Target must be an integer',
@@ -235,57 +247,46 @@ module.exports.userData = Joi.object({
     first_name: content.first_name,
     last_name: content.last_name,
     gender: content.gender,
-    birth_date: optionalContent.date
+    birth_date: content.birth_date
 });
 // return joischema.validate(user);
+module.exports.updateUserData = Joi.object({
+    username: optionalContent.name,
+    cmp_id: optionalContent.cmp_id,
+    // email: optionalContent.email,
+    password: optionalContent.password,
+    first_name: optionalContent.first_name,
+    last_name: optionalContent.last_name,
+    gender: optionalContent.gender,
+    birth_date: optionalContent.birth_date
+})
+module.exports.queryUserData = Joi.object({
+    page: content.page,
+    limit: content.limit,
+    // user_id: content.user_id,
+    cmp_id: content.cmp_id,
+    date: content.date,
+    cmp_name: optionalContent.name,
+    username: optionalContent.name
+});
 
 module.exports.companyData = Joi.object({
     name: content.name,
     industry: content.industry,
-    founded_date: optionalContent.date,
+    founded_date: content.founded_date,
     website: content.website,
     email: content.email,
     cmp_address: content.cmp_address,
     cmp_phone: content.cmp_phone
 })
-
-module.exports.updateUserData = Joi.object({
-    username: optionalContent.name,
-    cmp_id: optionalContent.cmp_id,
-    email: optionalContent.email,
-    password: optionalContent.password,
-    first_name: optionalContent.first_name,
-    last_name: optionalContent.last_name,
-    gender: optionalContent.gender,
-    birth_date: optionalContent.date
-})
-
 module.exports.updateCompanyData = Joi.object({
     name: optionalContent.name,
     industry: optionalContent.industry,
-    founded_date: optionalContent.date,
+    founded_date: optionalContent.founded_date,
     website: optionalContent.website,
     cmp_address: optionalContent.cmp_address,
     cmp_phone: content.cmp_phone
 })
-
-module.exports.queryUserData = Joi.object({
-    page: content.page,
-    limit: content.limit,
-    user_id: content.user_id,
-    cmp_id: optionalContent.cmp_id,
-    date: optionalContent.date,
-    cmp_name: optionalContent.name,
-    username: optionalContent.name
-});
-
-module.exports.queryTargetData = Joi.object({
-    page: content.page,
-    limit: content.limit,
-    user_id: optionalContent.user_id,
-    cmp_id: optionalContent.cmp_id,
-    date: optionalContent.date,
-});
 
 module.exports.targetData = Joi.object({
     user_id: content.user_id,
@@ -298,7 +299,13 @@ module.exports.targetData = Joi.object({
     is_team_lead: content.is_team_lead,
     currency: content.currency,
 })
-
+module.exports.queryTargetData = Joi.object({
+    page: content.page,
+    limit: content.limit,
+    user_id: optionalContent.user_id,
+    cmp_id: optionalContent.cmp_id,
+    date: content.date,
+});
 module.exports.updateTargetData = Joi.object({
     // user_id: content.user_id,
     assoc_team_name: optionalContent.name,

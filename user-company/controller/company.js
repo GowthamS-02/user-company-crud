@@ -3,7 +3,6 @@ const databaseRead = require('../readDatabase.js');
 const { response } = require('../helper/response.js');
 const { companyData, updateCompanyData } = require('../helper/validation.js');
 const message = require('../helper/message.js');
-// const { noOfPage } = require('../helper/noOfPage.js');
 const { date, displayDate } = require('../helper/moment.js');
 
 module.exports.createCompany = async (event) => {
@@ -18,7 +17,7 @@ module.exports.createCompany = async (event) => {
             return response(200, [], error.message)
         }
         const readModels = await databaseRead();
-        let { Company } = readModels;//
+        let { Company } = readModels;
         // await Company.sync( {alter: true});
         const cmpMail = inputData.email;
         const existEmail = await Company.findOne({ where: { email: cmpMail, is_deleted: 0 } });
@@ -27,10 +26,9 @@ module.exports.createCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        // Company = writeModels.Company;
         let currentDate = date()
         value.added_at = currentDate;
-        value.added_ts = currentDate;//utc
+        value.added_ts = currentDate;
         value.updated_dt = currentDate;
         value.updated_ts = currentDate;
 
@@ -60,11 +58,11 @@ module.exports.getAllCompany = async (event) => {
         const readModels = await databaseRead();
         let { Company } = readModels;
         let cmpObj = await Company.findAll({
-            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website'],
-            ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
+            attributes: [['name', 'company_name'], ['cmp_id', 'company_ID'], ['website', 'official_website'],
+            ['added_ts', 'added_date'], ['updated_ts', 'last_updated']],
             where: { is_deleted: 0 },
             order: [['cmp_id', 'ASC']],
-            limit: limit,//
+            limit: limit,
             offset: limit * (page - 1),
         });
         if ((cmpObj.length) === 0) {
@@ -73,24 +71,17 @@ module.exports.getAllCompany = async (event) => {
         }
         cmpObj = cmpObj.map(company => {
             company = company.toJSON();
-            company.Added_date = displayDate(company.Added_date);
-            company.Last_updated = displayDate(company.Last_updated);
+            company.added_date = displayDate(company.added_date);
+            company.last_updated = displayDate(company.last_updated);
             return company;
         });
-
         let cmpCount = await Company.count({
             where: { is_deleted: 0 }
         });
-        // if (page > (noOfPage(cmpCount))) {
-        //     responseMessage = message.NO_PAGE;
-        //     return response(200, [], responseMessage);
-        // }
-
         let responseData = {
             count: cmpCount,
             rows: cmpObj,
             currentPage: page,
-            // noOfPages: noOfPage(userCount)
         }
         return response(200, responseData, message.FOUND_DATA);
     }
@@ -106,8 +97,8 @@ module.exports.getCompany = async (event) => {
         const readModels = await databaseRead();
         let { Company } = readModels;
         let cmpObj = await Company.findOne({
-            attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website'],
-            ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
+            attributes: [['name', 'company_name'], ['cmp_id', 'company_ID'], ['website', 'official_website'],
+            ['added_ts', 'added_date'], ['updated_ts', 'last_updated']],
             where: { cmp_id, is_deleted: 0 }
         });
         let responseMessage = message.FOUND_DATA;
@@ -115,13 +106,12 @@ module.exports.getCompany = async (event) => {
             responseMessage = message.REQ_NOT_FOUND;
             return response(200, cmpObj, responseMessage);
         }
-        cmpObj = cmpObj.map(company => {
-            company = company.toJSON();
-            company.Added_date = displayDate(company.Added_date);
-            company.Last_updated = displayDate(company.Last_updated);
-            return company;
-        });
-        // let cmpObj = { Company: cmpData };
+        // cmpObj = cmpObj.map(company => {
+        //     company = company.toJSON();
+        //     company.added_date = displayDate(company.added_date);
+        //     company.last_updated = displayDate(company.last_updated);
+        //     return company;
+        // });
         return response(201, cmpObj, responseMessage);
     }
     catch (error) {
@@ -140,7 +130,7 @@ module.exports.updateCompany = async (event) => {
         }
         const readModels = await databaseRead();
         let { Company } = readModels;
-        const { email } = event.pathParameters;//
+        const { email } = event.pathParameters;
         const cmpMail = await Company.findOne({ where: { email, is_deleted: 0 } });
         let responseMessage;
         if (!cmpMail) {
@@ -148,7 +138,6 @@ module.exports.updateCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        // Company = writeModels.Company;
         let currentDate = date();
         value.updated_dt = currentDate;
         value.updated_ts = currentDate;
@@ -174,7 +163,6 @@ module.exports.deleteCompany = async (event) => {
             return response(200, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        // Company = writeModels.Company;
         let { User } = writeModels;
         let currentDate = date();
         await writeModels.Company.update({ is_deleted: 1, updated_dt: currentDate, updated_ts: currentDate }, { where: { cmp_id, is_deleted: 0 } });
@@ -187,57 +175,3 @@ module.exports.deleteCompany = async (event) => {
         throw error;
     }
 };
-
-
-
-
-// module.exports.usersInCompany = async (event) => {
-//     const models = await databaseRead();
-//     const { User, Company } = models;
-//     try {
-//         const { cmp_id } = event.pathParameters;
-//         let cmpData = await Company.findOne({
-//             attributes: [['name', 'Company_name'], ['cmp_id', 'Company_ID'], ['website', 'Official_website']],
-//             include: {
-//                 model: User,
-//                 where: { cmp_id, is_deleted: 0 },
-//                 attributes: ["user_id", "username", "email"],
-//             }
-//         });
-//         let responseMessage;
-//         if (!cmpData) {
-//             responseMessage = message.REQ_NOT_FOUND;
-//         }
-//         return response(200, cmpData, responseMessage);
-//     }
-//     catch (error) {
-//         console.log(error);
-//         throw error;
-//     }
-// };
-
-
-// module.exports.companyOfUser = async (event) => {
-//     const models = await databaseRead();
-//     const { User, Company } = models;
-//     try {
-//         const { user_id } = event.pathParameters;
-//         let userObj = await User.findOne({
-//             attributes: ["user_id", "username", "email"],
-//             where: { user_id, is_deleted: 0 },
-//             include: {
-//                 model: Company,
-//                 attributes: [['name', 'cmp_name'], ['cmp_id', 'Company ID'], ['website', 'Official website']],
-//             }
-//         });
-//         let responseMessage;
-// if (!userObj) {
-//             responseMessage = message.REQ_NOT_FOUND;
-//         }
-//         return response(200, userObj, responseMessage);
-//     }
-//     catch (error) {
-//         console.log(error);
-//         throw error;
-//     }
-// };
