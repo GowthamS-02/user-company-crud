@@ -113,20 +113,16 @@ let content = {
             'number.integer': 'Limit must be an integer',
             'number.min': 'Limit should be minimum of 1.',
         }),
-    assoc_target_mthly: Joi.number().integer().min(1).required()
+    assoc_target_mthly: Joi.number().integer().allow(null)
         .messages({
-            'any.required': 'Monthly Target cannot be empty',
             'number.base': 'Monthly Target must be a number',
-            'number.integer': 'Monthly Target must be an integer',
-            'number.min': 'Monthly Target should be minimum of 1.',
+            'number.integer': 'Monthly Target must be an integer'
         }),
-    assoc_target_mthly_usd: Joi.string().required().valid('null', 'notNull')
-        .messages({
-            'any.required': 'The only valid values are null and notNull',
-            'string.base': 'The only valid values are null and notNull',
-            'string.empty': 'The only valid values are null and notNull',
-            'any.only': 'The only valid values are null and notNull'
-        }),
+    assoc_target_mthly_usd: Joi.number().integer().allow(null)
+    .messages({
+        'number.base': 'Monthly Target USD must be a number',
+        'number.integer': 'Monthly Target USD must be an integer'
+    }),
     is_team_lead: Joi.number().integer().valid(0, 1)
         .messages({
             'number.base': 'is_team_lead must be a number 0 or 1',
@@ -219,18 +215,6 @@ let optionalContent = {
         .messages({
             'any.only': 'assoc_en_dt  in correct format'
         }),
-    assoc_target_mthly: Joi.number().integer().min(1)
-        .messages({
-            'number.base': 'Monthly Target must be a number',
-            'number.integer': 'Monthly Target must be an integer',
-            'number.min': 'Monthly Target should be minimum of 1.',
-        }),
-    assoc_target_mthly_usd: Joi.string().valid('null', 'notNull')
-        .messages({
-            'string.base': 'The only valid values are null and notNull',
-            'string.empty': 'The only valid values are null and notNull',
-            'any.only': 'The only valid values are null and notNull'
-        }),
     currency: Joi.string().valid('INR', 'USD')
         .messages({
             'string.base': 'Currency must be a string',
@@ -261,6 +245,7 @@ module.exports.updateUserData = Joi.object({
     birth_date: optionalContent.birth_date
 })
 module.exports.queryUserData = Joi.object({
+    user_id: optionalContent.name,
     page: content.page,
     limit: content.limit,
     // user_id: content.user_id,
@@ -309,11 +294,11 @@ module.exports.queryTargetData = Joi.object({
 module.exports.updateTargetData = Joi.object({
     // user_id: content.user_id,
     assoc_team_name: optionalContent.name,
-    assoc_target_mthly: optionalContent.assoc_target_mthly,
+    assoc_target_mthly: content.assoc_target_mthly,
     cmp_id: optionalContent.cmp_id,
     assoc_st_dt: optionalContent.assoc_st_dt,
     assoc_en_dt: optionalContent.assoc_en_dt,
-    assoc_target_mthly_usd: optionalContent.assoc_target_mthly_usd,
+    assoc_target_mthly_usd: content.assoc_target_mthly_usd,
     is_team_lead: content.is_team_lead,
     currency: optionalContent.currency,
 })

@@ -23,7 +23,8 @@ module.exports.TargetModel = (Sequelize, sequelize) => {
         },
         assoc_target_mthly: {
             type: Sequelize.INTEGER(250),
-            allowNull: false
+            defaultValue: null,
+            allowNull: true
         },
         cmp_id: {
             type: Sequelize.INTEGER(50),
@@ -38,7 +39,8 @@ module.exports.TargetModel = (Sequelize, sequelize) => {
             allowNull: false
         },
         assoc_target_mthly_usd: {
-            type: Sequelize.STRING(250),
+            type: Sequelize.INTEGER(250),
+            defaultValue: null,
             allowNull: true
         },
         is_team_lead: {

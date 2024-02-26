@@ -18,6 +18,17 @@
         }
 
 
+
+        getCompany
+
+            // cmpObj = cmpObj.map(company => {
+        //     company = company.toJSON();
+        //     company.added_date = displayDate(company.added_date);
+        //     company.last_updated = displayDate(company.last_updated);
+        //     return company;
+        // });
+
+
 controller/company.js -> last cotent
         // module.exports.usersInCompany = async (event) => {
 //     const models = await databaseRead();
@@ -84,3 +95,46 @@ controller/company.js -> last cotent
   #     - httpApi:
   #         path:  company_of_user/{user_id}
   #         method: get
+
+
+
+
+
+  target.js -> get single target
+
+  // module.exports.getTarget = async (event) => {
+//     try {
+//         const { target_id } = event.pathParameters;
+//         const readModels = await databaseRead();
+//         let { Target } = readModels;
+//         let targetObj = await Target.findOne({
+//             attributes: [['user_id', 'User_id'], ['cmp_id', 'Company_id'], ['assoc_team_name', 'Team_name'],
+//             ['assoc_target_mthly', 'Monthly_target'], ['currency', 'Currency'], ['assoc_st_dt', 'Start_date'],
+//             ['assoc_en_dt', 'End_date'], ['added_ts', 'Added_date'], ['updated_ts', 'Last_updated']],
+//             where: { target_id, is_deleted: 0 }
+//         });
+//         let responseMessage = message.FOUND_DATA;
+//         if (!targetObj) {
+//             responseMessage = message.REQ_NOT_FOUND;
+//             return response(200, [], responseMessage);
+//         }
+//         // targetObj = targetObj.map(target => {
+//         //     target = target.toJSON();
+//         //     target.Added_date = displayDate(target.Added_date);
+//         //     target.Last_updated = displayDate(target.Last_updated);
+//         //     return target;
+//         // });
+//         return response(200, targetObj, responseMessage);
+//     }
+//     catch (error) {
+//         console.log(error);
+//         throw error;
+//     }
+// };
+
+        //To find company separately
+        // let cmpData =await Company.findOne({ where: { cmp_id: cmpId, is_deleted: 0 } });
+        // if(!cmpData){
+        //     responseMessage = message.CMP_ID_NOT_FOUND;
+        //     return response(200, [], responseMessage);
+        // }
