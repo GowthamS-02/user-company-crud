@@ -136,6 +136,11 @@ let content = {
             'string.empty': 'Currency cannot be empty',
             'any.only': 'The only valid currencies are INR and USD'
         }),
+    image_url: Joi.string().required()
+    .messages({
+        'any.required': 'Image is required',
+        'string.empty': 'Image cannot be empty'
+    }),
 };
 
 let optionalContent = {
@@ -231,7 +236,8 @@ module.exports.userData = Joi.object({
     first_name: content.first_name,
     last_name: content.last_name,
     gender: content.gender,
-    birth_date: content.birth_date
+    birth_date: content.birth_date,
+    image_url: content.image_url
 });
 // return joischema.validate(user);
 module.exports.updateUserData = Joi.object({

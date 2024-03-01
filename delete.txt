@@ -138,3 +138,14 @@ controller/company.js -> last cotent
         //     responseMessage = message.CMP_ID_NOT_FOUND;
         //     return response(200, [], responseMessage);
         // }
+
+
+
+        "username": "Jack Sparrow",
+     "cmp_id":102,
+    "email": "jacksparrow@example.com",
+    "password": "hashed_password_123",
+    "first_name": "Jack",
+    "last_name": "Sparrow",
+    "gender": "male",
+    "birth_date": "1990-05-15"

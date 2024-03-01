@@ -4,19 +4,22 @@ const { response } = require("../helper/response.js");
 const {
     userData,
     updateUserData,
-    queryUserData,
+    queryUserData
 } = require("../helper/validation.js");
 const message = require("../helper/message.js");
 const { date, displayDate } = require("../helper/moment.js");
-const { noOfPage } = require("../helper/noOfPage.js");
 const { Op } = require("sequelize");
 const { encrypt, decrypt } = require("../helper/encrdecr.js");
+const AWS = require('aws-sdk');
+require("aws-sdk/lib/maintenance_mode_message").suppress = true;
+const { uploadImage } = require('../helper/s3upload.js')
 
 module.exports.createUser = async (event) => {
     try {
         if (event.body === null) {
             return response(400, 1, 0, 0, [], message.ENTER_DATA);
         }
+        console.log(event.value);
         const inputData = JSON.parse(event.body);
         const { error, value } = await userData.validate(inputData);
         if (error) {
@@ -34,7 +37,9 @@ module.exports.createUser = async (event) => {
             return response(200, 1, 1, 1, [], responseMessage);
         }
         const writeModels = await databaseWrite();
-        await writeModels.User.sync({ alter: true });
+        // await writeModels.User.sync({ alter: true });
+
+        value.image_url =await uploadImage(inputData.image_url);
         let currentDate = date();
         value.added_at = currentDate;
         value.added_ts = currentDate;

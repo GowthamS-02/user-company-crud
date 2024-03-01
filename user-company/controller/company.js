@@ -35,7 +35,7 @@ module.exports.createCompany = async (event) => {
         value.updated_ts = currentDate;
 
         await writeModels.Company.create(value);
-        return response(201, 1, 1, 1, [], message.USER_CREATE);
+        return response(201, 1, 1, 1, [], message.CMP_CREATE);
     } catch (error) {
         console.log(error);
         throw error;

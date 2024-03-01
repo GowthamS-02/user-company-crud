@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.1569.0",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.1",
     "joi": "^17.12.1",
