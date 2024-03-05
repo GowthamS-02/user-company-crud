@@ -138,8 +138,8 @@ let content = {
         }),
     image_url: Joi.string().required()
     .messages({
-        'any.required': 'Image is required',
-        'string.empty': 'Image cannot be empty'
+        'any.required': 'Image base-64 data is required',
+        'string.empty': 'Image base-64 data cannot be empty'
     }),
 };
 

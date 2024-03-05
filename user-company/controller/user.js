@@ -4,15 +4,13 @@ const { response } = require("../helper/response.js");
 const {
     userData,
     updateUserData,
-    queryUserData
+    queryUserData,
 } = require("../helper/validation.js");
 const message = require("../helper/message.js");
 const { date, displayDate } = require("../helper/moment.js");
 const { Op } = require("sequelize");
 const { encrypt, decrypt } = require("../helper/encrdecr.js");
-const AWS = require('aws-sdk');
-require("aws-sdk/lib/maintenance_mode_message").suppress = true;
-const { uploadImage } = require('../helper/s3upload.js')
+const { uploadImage } = require("../helper/s3upload.js");
 
 module.exports.createUser = async (event) => {
     try {
@@ -39,7 +37,7 @@ module.exports.createUser = async (event) => {
         const writeModels = await databaseWrite();
         // await writeModels.User.sync({ alter: true });
 
-        value.image_url =await uploadImage(inputData.image_url);
+        value.image_url = await uploadImage(inputData.image_url);
         let currentDate = date();
         value.added_at = currentDate;
         value.added_ts = currentDate;
@@ -63,13 +61,11 @@ module.exports.getAllUsers = async (event) => {
         let queryUser = { is_deleted: 0 };
         let queryCmp = { is_deleted: 0 };
         let queryTarget = { is_deleted: 0 };
-
         const { error, value } = await queryUserData.validate(body);
         if (error) {
             console.log(error.message);
             return response(400, 1, 0, 0, [], error.message);
         }
-
         let page = body.page;
         let limit = body.limit;
         queryUser.cmp_id = body.cmp_id;
@@ -131,9 +127,7 @@ module.exports.getAllUsers = async (event) => {
 
         userObj = userObj.map((user) => {
             user = user.toJSON();
-            console.log(user.userId);
             user.userId = encrypt(user.userId);
-            console.log(user.userId);
             user.added_date = displayDate(user.added_date);
             user.last_updated = displayDate(user.last_updated);
             if (user.salesAssociates[0].monthly_target !== null) {

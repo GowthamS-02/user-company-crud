@@ -149,3 +149,20 @@ controller/company.js -> last cotent
     "last_name": "Sparrow",
     "gender": "male",
     "birth_date": "1990-05-15"
+
+
+
+        // let imageUrl = () => {
+    //     s3.upload(uploadParams, async (err, data) => {
+    //         if (err) {
+    //             console.error("Error uploading image:", err);
+    //         } else {
+    //           let picUrl = await data.Location;
+    //             console.log("Image uploaded successfully. Image URL:",data);
+    //             console.log("S3 URL One:", picUrl);
+    //             return picUrl;
+    //         }
+    //         console.log("S3 URL two:", data.Location);
+    //     });
+// console.log("picUrl:",data);
+    // }

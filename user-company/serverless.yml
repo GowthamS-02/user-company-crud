@@ -4,6 +4,13 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
+  region: ap-south-1
+  environment:
+    DB_USERNAME: ${ssm:/sls/user-company/db/username}
+    DB_PASSWORD: ${ssm:/sls/user-company/db/password}
+    DB_NAME: ${ssm:/sls/user-company/db/name}
+    SECRET_KEY: ${ssm:/sls/user-company/encr-decr/secret-key}
+
 
 plugins:
   - serverless-offline
