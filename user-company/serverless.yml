@@ -10,7 +10,11 @@ provider:
     DB_PASSWORD: ${ssm:/sls/user-company/db/password}
     DB_NAME: ${ssm:/sls/user-company/db/name}
     SECRET_KEY: ${ssm:/sls/user-company/encr-decr/secret-key}
-
+    TWILIO_ACCOUNT_SID: ${ssm:/user-company/twilio/accountSid}
+    TWILIO_AUTH_TOKEN: ${ssm:/user-company/twilio/authToken}
+    TWILIO_PHONE_NUMBER: ${ssm:/user-company/twilio/phone_number}
+    NODEMAILER_MAIL_ADDRESS: ${ssm:/user-company/nodemailer/mail_address}
+    NODEMAILER_MAIL_APP_PASS: ${ssm:/user-company/nodemailer/mail_app_password}
 
 plugins:
   - serverless-offline
@@ -106,7 +110,12 @@ functions:
       - httpApi:
           path:  target/delete/{target_id}
           method: delete
-
+  userNotification:
+    handler: helper/notification.userNotification
+    events:
+      - httpApi:
+          path: notification
+          method: post
 
 
 

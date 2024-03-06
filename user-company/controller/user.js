@@ -17,7 +17,7 @@ module.exports.createUser = async (event) => {
         if (event.body === null) {
             return response(400, 1, 0, 0, [], message.ENTER_DATA);
         }
-        console.log(event.value);
+        // console.log(event.value);
         const inputData = JSON.parse(event.body);
         const { error, value } = await userData.validate(inputData);
         if (error) {

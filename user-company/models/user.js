@@ -39,6 +39,10 @@ module.exports.UserModel = (Sequelize, sequelize) => {
             type: Sequelize.DATEONLY,
             allowNull: false
         },
+        user_phone: {
+            type: Sequelize.STRING(50),
+            allowNull: false
+        },
         image_url:{
             type: Sequelize.STRING(250),
             allowNull: false

@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-// require('dotenv').config();
+require('dotenv').config();
 const { UserModel } = require('./models/user.js');
 const { CompanyModel } = require('./models/company.js');
 const { TargetModel } = require('./models/target.js')

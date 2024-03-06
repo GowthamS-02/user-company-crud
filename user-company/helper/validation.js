@@ -93,7 +93,7 @@ let content = {
             'string.base': 'Company Address must be a string',
             'string.empty': 'Address cannot be empty'
         }),
-    cmp_phone: Joi.string().length(12)
+    phone: Joi.string().length(13)
         .messages({
             'string.base': 'Phone Number must be a string',
             'string.empty': 'Phone Number cannot be empty',
@@ -141,6 +141,12 @@ let content = {
         'any.required': 'Image base-64 data is required',
         'string.empty': 'Image base-64 data cannot be empty'
     }),
+    message: Joi.string().required()
+        .messages({
+            'any.required': 'Message is required',
+            'string.base': 'Message must be a string',
+            'string.empty': 'Message cannot be empty'
+        }),
 };
 
 let optionalContent = {
@@ -237,12 +243,14 @@ module.exports.userData = Joi.object({
     last_name: content.last_name,
     gender: content.gender,
     birth_date: content.birth_date,
+    user_phone: content.phone,
     image_url: content.image_url
 });
 // return joischema.validate(user);
 module.exports.updateUserData = Joi.object({
     username: optionalContent.name,
     cmp_id: optionalContent.cmp_id,
+    user_phone: content.phone,
     // email: optionalContent.email,
     password: optionalContent.password,
     first_name: optionalContent.first_name,
@@ -268,7 +276,7 @@ module.exports.companyData = Joi.object({
     website: content.website,
     email: content.email,
     cmp_address: content.cmp_address,
-    cmp_phone: content.cmp_phone
+    cmp_phone: content.phone
 })
 module.exports.updateCompanyData = Joi.object({
     name: optionalContent.name,
@@ -276,7 +284,7 @@ module.exports.updateCompanyData = Joi.object({
     founded_date: optionalContent.founded_date,
     website: optionalContent.website,
     cmp_address: optionalContent.cmp_address,
-    cmp_phone: content.cmp_phone
+    cmp_phone: content.phone
 })
 
 module.exports.targetData = Joi.object({
@@ -307,4 +315,12 @@ module.exports.updateTargetData = Joi.object({
     assoc_target_mthly_usd: content.assoc_target_mthly_usd,
     is_team_lead: content.is_team_lead,
     currency: optionalContent.currency,
+})
+
+module.exports.validNotification = Joi.object({
+    page: content.page,
+    limit: content.limit,
+    cmp_id: content.cmp_id,
+    user_id: optionalContent.name,
+    message: content.message
 })
