@@ -166,3 +166,6 @@ controller/company.js -> last cotent
     //     });
 // console.log("picUrl:",data);
     // }
+
+
+    for testing
