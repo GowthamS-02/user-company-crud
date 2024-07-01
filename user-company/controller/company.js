@@ -1,7 +1,7 @@
 const databaseWrite = require("../writeDatabase.js");
 const databaseRead = require("../readDatabase.js");
 const { response } = require("../helper/response.js");
-const { companyData, updateCompanyData } = require("../helper/validation.js");
+const { companyData, updateCompanyData, queryCompanyData } = require("../helper/validation.js");
 const message = require("../helper/message.js");
 const { date, displayDate } = require("../helper/moment.js");
 
@@ -44,11 +44,11 @@ module.exports.createCompany = async (event) => {
 
 module.exports.getAllCompany = async (event) => {
     try {
-        const body = JSON.stringify(event.body);
+        const body = JSON.parse(event.body);
         if (event.body === null) {
             return response(400, 1, 0, 0, [], message.ENTER_DATA);
         }
-        const { error, value } = await queryDataValues.validate(body);
+        const { error, value } = await queryCompanyData.validate(body);
         if (error) {
             console.log(error.message);
             return response(400, 1, 0, 0, [], error.message);
